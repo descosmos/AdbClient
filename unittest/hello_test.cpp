@@ -2,7 +2,7 @@
 #include <string>
 #include <stdio.h>
 #include "utils.h"
-#include "AdbCommand.h"
+#include "HostCommand.h"
 #include "htime.h"
 
 using namespace hv;
@@ -16,9 +16,9 @@ TEST(HelloTest, BasicAssertions) {
 }
 
 TEST(ConnectTest, BasicAssertions) {
-  AdbCommand adbcmd;
-  int connfd = adbcmd.create_socket(DEFAULT_ADB_PORT, "127.0.0.1");
+  HostCommand adbcmd;
+  int connfd = adbcmd.m_tcp_client.createsocket(DEFAULT_ADB_PORT, "127.0.0.1");
   ASSERT_GE(connfd, 0);
 
-  adbcmd.close_socket();
+  adbcmd.m_tcp_client.closesocket();
 }
