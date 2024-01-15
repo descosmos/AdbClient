@@ -4,6 +4,9 @@
 
 #include <string>
 #include <vector>
+#include <stdio.h>
+#include <string.h>
+
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName)   \
   void operator=(const TypeName &) = delete; \
@@ -22,10 +25,21 @@
 
 #endif // ARGS_ATTR
 
+#ifndef ADB_LOG
+#define ADB_LOGI(fmt, ...) \
+  do { \
+    printf("%s (%I32d) : "fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
+    fflush(stdout); \
+  } while(0)
+
+#endif // ADB_LOG
+
+
 constexpr int DEFAULT_ADB_PORT = 5037;
 
 int add_t(int a, int b);
-
 std::vector<std::string> string_split(const std::string &str, char delimiter);
+
+std::string unique_character(std::string &str);
 
 #endif // UTILS_H_

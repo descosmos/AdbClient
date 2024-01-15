@@ -37,35 +37,41 @@ int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
             auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
             channel->write(str);
         } else {
-            printf("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+            // ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
         }
     };
     set_client_on_connection_callback(connection_callback);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
+        ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
+
         if (buf->size() > 4) {
             if (strstr((char*)buf->data(), "OKAY") != NULL) {
                 std::vector<std::string> devices_list_tmp = string_split(std::string((char*)buf->data() + 8), '\n');
-                printf("devices_list_tmp.size: %d\n", devices_list_tmp.size());
-                std::for_each(devices_list_tmp.begin(), devices_list_tmp.end(), [&](const std::string& it){
-                    printf("sss it: %s\n", it.c_str());
+                ADB_LOGI("devices_list_tmp.size: %d\n", devices_list_tmp.size());
+                std::for_each(devices_list_tmp.begin(), devices_list_tmp.end(), [&](const std::string& it) {
+                    ADB_LOGI("sss it: %s\n", it.c_str());
                 });
-                // printf("< %.*s\n", (int)buf->size(), (char*)buf->data());
-                // printf("< %.*s\n", (int)buf->size(), (char*)buf->data() + 4);
-                // fflush(stdout);
+            } else {
+                std::vector<std::string> devices_list_tmp = string_split(std::string((char*)buf->data() + 4), '\n');
+                devices_list_tmp.pop_back();    // pop null 
+                ADB_LOGI("devices_list_tmp.size: %d\n", devices_list_tmp.size());
+                std::for_each(devices_list_tmp.begin(), devices_list_tmp.end(), [&](const std::string& it) {
+                    ADB_LOGI("sss it: %s\n", it.c_str());
+                });
+
+                std::vector<std::string> devices_info = string_split(devices_list_tmp[0], '\t');
+                ADB_LOGI("devices_info.size: %d\n", devices_info.size());
+                std::for_each(devices_info.begin(), devices_info.end(), [&](const std::string& its) {
+                    ADB_LOGI("sss it: %s\n", its.c_str());
+                });
             } 
-
-        } else {
+        } else if (buf->size() == 4) {
             if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                std::vector<std::string> devices_list_tmp = string_split(std::string((char*)buf->data()), '\n');
-                printf("devices_list_tmp.size: %d\n", devices_list_tmp.size());
-                std::for_each(devices_list_tmp.begin(), devices_list_tmp.end(), [&](const std::string& it){
-
-                    printf("sss it: %s\n", it.c_str());
-                });
-                // printf("< %.*s\n", (int)buf->size(), (char*)buf->data());
-                fflush(stdout);
+                // channel->write("host:devices");
             }
+        } else {
+            // TODO: buf-size < 4
         }
 
     };
@@ -77,7 +83,7 @@ int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
     m_tcp_client.start();
 
     if (execute_cmd(cmd) == -1) {
-        printf("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
     }
     
     return -1;

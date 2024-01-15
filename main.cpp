@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     if (connfd < 0) {
         return -20;
     }
-    printf("client connect to port %d, connfd=%d ...\n", remote_port, connfd);
+    ADB_LOGI("client connect to port %d, connfd=%d ...\n", remote_port, connfd);
 
 #if TEST_RECONNECT
     // reconnect: 1,2,4,8,10,10,10...
