@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-
 # subordinate directory
 # dependency
 add_subdirectory(./third_party/libhv)
@@ -16,7 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/third_party/libhv/include/hv)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-set( SRC
+set(SRC
     ${PROJECT_SOURCE_DIR}/src/utils.cpp
     ${PROJECT_SOURCE_DIR}/src/android/stringprintf.cpp
     ${PROJECT_SOURCE_DIR}/src/AdbCommand.cpp
@@ -26,8 +25,7 @@ set( SRC
 )
 
 # library
-
-if (WIN32)
+if(WIN32)
     add_library(${PROJECT_NAME} SHARED ${SRC})
     add_library(${PROJECT_NAME}Static STATIC ${SRC})
 else()
@@ -35,10 +33,10 @@ else()
 endif()
 
 # link
-if (WIN32)
+if(WIN32)
     target_link_libraries(${PROJECT_NAME}Static PUBLIC hv_static)
     target_link_libraries(${PROJECT_NAME} PUBLIC hv_static)
-else ()
+else()
     target_link_libraries(${PROJECT_NAME} PUBLIC hv_static)
 endif()
 
@@ -47,8 +45,9 @@ endif()
 # if(BUILD_UNITTEST)
 enable_testing()
 add_subdirectory(./unittest)
+
 # endif()
 
 # executable
 add_executable(${PROJECT_NAME}Exe main.cpp)
-target_link_libraries(${PROJECT_NAME}Exe  ${PROJECT_NAME}Static)
+target_link_libraries(${PROJECT_NAME}Exe ${PROJECT_NAME}Static)
