@@ -38,10 +38,24 @@ TEST(UtilsTest, StringUniqueAssertions) {
     ASSERT_EQ(res1, std::string("Setence1 Setence2"));
 }
 
-TEST(ConnectTest, BasicAssertions) {
-    HostCommand adbcmd;
-    int connfd = adbcmd.m_tcp_client.createsocket(DEFAULT_ADB_PORT, "127.0.0.1");
+TEST(HostCommandTest, BasicAssertions) {
+    int remote_port = 5037;
+    const char* remote_host = "127.0.0.1";
+
+    HostCommand hostCommand;
+    int connfd = hostCommand.m_tcp_client.createsocket(remote_port, remote_host);
     ASSERT_GE(connfd, 0);
 
-    adbcmd.m_tcp_client.closesocket();
+    // adb version
+    int version;
+    int status = hostCommand.get_version(version);
+    ASSERT_NE(status, -1);
+    ASSERT_GE(version, 0);
+
+    // adb devices
+    std::vector<HostCommand::DevicesInfo> devices_list;
+    status = hostCommand.get_devices(devices_list);
+    ASSERT_NE(status, -1);
+    ASSERT_NE(devices_list.size(), 0);
+
 }

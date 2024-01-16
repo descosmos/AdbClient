@@ -36,12 +36,19 @@ int main(int argc, char* argv[]) {
     cli.withTLS();
 #endif
 
+    int version;
+    hostCommand.get_version(version);
+    ADB_LOGI("version: %d\n", version);
+
+
     std::vector<HostCommand::DevicesInfo> devices_list;
     hostCommand.get_devices(devices_list);
-
     for (const auto& device : devices_list) {
         ADB_LOGI("devices_list: %s %s\n", device.serial, device.status);
     }
-
+    
+    // hostCommand.m_tcp_client.stop();
+    // hostCommand.m_tcp_client.closesocket();
+    
     return 0;
 }

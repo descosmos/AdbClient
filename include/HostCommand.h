@@ -41,7 +41,7 @@ class HostCommand : public AdbCommand {
         std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) override;
 
     int execute_cmd(std::string_view cmd) override;
-    int get_version(std::string& ARGS_OUT res);
+    int get_version(int& ARGS_OUT version);
     int get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list);
 };
 

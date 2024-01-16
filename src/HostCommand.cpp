@@ -25,7 +25,60 @@ void HostCommand::set_client_on_write_complete_callback(
 
 int HostCommand::execute_cmd(std::string_view cmd) { return 0; }
 
-int HostCommand::get_version(std::string& ARGS_OUT res) { return -1; }
+int HostCommand::get_version(int& ARGS_OUT version) {
+    std::string_view cmd = STRING_CONCAT("host", ":version");
+    int status = -1;
+
+    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
+        std::string peeraddr = channel->peeraddr();
+        if (channel->isConnected()) {
+            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
+            channel->write(str);
+            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+        } else {
+            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+        }
+        if (m_tcp_client.isReconnect()) {
+            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt, m_tcp_client.reconn_setting->cur_delay);
+        }
+    };
+    set_client_on_connection_callback(connection_callback);
+
+    auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
+        ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
+        if (buf->size() > 4) {
+            if (strstr((char*)buf->data(), "OKAY") != NULL) {
+                std::string data = (char*)buf->data() + 8;
+                version = std::stoi(data, nullptr, 16);
+            } else {
+                std::string data = (char*)buf->data() + 4;
+                version = std::stoi(data, nullptr, 16);
+            }
+            status = 0;
+        } else if (buf->size() == 4) {
+            if (strcmp((char*)buf->data(), "OKAY") == 0) {
+                // channel->write("host:devices");
+            } else {
+                status = -1;
+            }
+        } else {
+            // TODO: buf-size < 4
+        }
+    };
+    set_client_on_message_callback(message_callback);
+
+    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
+    // hv::Buffer* buf) {};
+    // set_client_on_write_complete_callback(write_complete_callback);
+
+    m_tcp_client.start();
+
+    if (status == -1) {
+        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+    }
+
+    return status;
+}
 
 void get_device_info_from_buf(std::vector<HostCommand::DevicesInfo>& ARGS_OUT devices_list,
                               const std::string& ARGS_IN buf) {
@@ -59,31 +112,38 @@ int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
         if (channel->isConnected()) {
             auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
             channel->write(str);
+            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
         } else {
-            // ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(),
-            // channel->fd());
+            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+        }
+        if (m_tcp_client.isReconnect()) {
+            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt, m_tcp_client.reconn_setting->cur_delay);
         }
     };
     set_client_on_connection_callback(connection_callback);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
-        // ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
+        ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
 
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                get_device_info_from_buf(devices_list, std::string((char*)buf->data() + 8));
+        if (channel->isConnected()) {
+            if (buf->size() > 4) {
+                if (strstr((char*)buf->data(), "OKAY") != NULL) {
+                    get_device_info_from_buf(devices_list, std::string((char*)buf->data() + 8));
+                } else {
+                    get_device_info_from_buf(devices_list, std::string((char*)buf->data() + 4));
+                }
+                status = 0;
+            } else if (buf->size() == 4) {
+                if (strcmp((char*)buf->data(), "OKAY") == 0) {
+                    // channel->write("host:devices");
+                } else {
+                    status = -1;
+                }
             } else {
-                get_device_info_from_buf(devices_list, std::string((char*)buf->data() + 4));
-            }
-            status = 0;
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                // channel->write("host:devices");
-            } else {
-                status = -1;
+                // TODO: buf-size < 4
             }
         } else {
-            // TODO: buf-size < 4
+            ADB_LOGI("disconnect.\n");
         }
     };
     set_client_on_message_callback(message_callback);
@@ -92,7 +152,12 @@ int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
+    m_tcp_client.startConnect();
     m_tcp_client.start();
+
+    while (!m_tcp_client.isConnected()) {
+        Sleep(0);
+    }
 
     if (status == -1) {
         ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
