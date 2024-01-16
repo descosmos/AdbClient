@@ -1,22 +1,13 @@
-/*
- * TcpClient_test.cpp
- *
- * @build   make evpp
- * @server  bin/TcpServer_test 1234
- * @client  bin/TcpClient_test 1234
- *
- */
-
 #include <iostream>
 
-#include "utils.h"
-#include "android/stringprintf.h"
-#include "libhv_evpp/TcpClient.h"
-#include "htime.h"
 #include "HostCommand.h"
+#include "android/stringprintf.h"
+#include "htime.h"
+#include "libhv_evpp/TcpClient.h"
+#include "utils.h"
 
-#define TEST_RECONNECT  0
-#define TEST_TLS        0
+#define TEST_RECONNECT 0
+#define TEST_TLS 0
 
 using namespace hv;
 
@@ -45,8 +36,12 @@ int main(int argc, char* argv[]) {
     cli.withTLS();
 #endif
 
-    std::vector<HostCommand::DevicesInfo> devices_list(2);
+    std::vector<HostCommand::DevicesInfo> devices_list;
     hostCommand.get_devices(devices_list);
+
+    for (const auto& device : devices_list) {
+        ADB_LOGI("devices_list: %s %s\n", device.serial, device.status);
+    }
 
     return 0;
 }
