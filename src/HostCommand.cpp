@@ -59,6 +59,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
             ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
         } else {
             ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+            weak_up();
         }
         if (m_tcp_client.isReconnect()) {
             ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
@@ -88,8 +89,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
             // TODO: buf-size < 4
         }
 
-        buf->cleanup();
-        weak_up();
+        memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
@@ -146,6 +146,7 @@ int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
             ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
         } else {
             ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+            weak_up();
         }
         if (m_tcp_client.isReconnect()) {
             ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
@@ -176,9 +177,7 @@ int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
         } else {
             ADB_LOGI("disconnect.\n");
         }
-
-        buf->cleanup();
-        weak_up();
+        memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
