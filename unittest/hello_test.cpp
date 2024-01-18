@@ -34,8 +34,8 @@ TEST(UtilsTest, StringSplitAssertions) {
 
 TEST(UtilsTest, StringUniqueAssertions) {
     std::string str1 = "Setence1       Setence2";
-    std::string res1 = unique_character(str1);
-    ASSERT_EQ(res1, std::string("Setence1 Setence2"));
+    unique_character(str1);
+    ASSERT_EQ(str1, std::string("Setence1 Setence2"));
 }
 
 TEST(HostCommandTest, BasicAssertions) {
@@ -56,6 +56,12 @@ TEST(HostCommandTest, BasicAssertions) {
     std::vector<HostCommand::DevicesInfo> devices_list;
     status = hostCommand.get_devices(devices_list);
     ASSERT_NE(status, -1);
-    ASSERT_NE(devices_list.size(), 0);
+    ASSERT_NE(devices_list.size(), 2);
+
+    // adb devices -l
+    std::vector<HostCommand::DevicesInfo> devices_list_l;
+    hostCommand.get_devices_with_path(devices_list_l);
+    ASSERT_NE(status, -1);
+    ASSERT_NE(devices_list.size(), 6);
 
 }

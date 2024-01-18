@@ -7,7 +7,7 @@
 
 class HostCommand : public AdbCommand {
    public:
-    DISALLOW_COPY_AND_ASSIGN(HostCommand);
+    DISALLOW_ASSIGN(HostCommand);
 
     struct DevicesInfo {
        public:
@@ -18,18 +18,40 @@ class HostCommand : public AdbCommand {
             memcpy(status, _status.data(), _status.size());
         }
 
+        DevicesInfo(const std::string& _serial, const std::string& _status, const std::string& _product,
+                    const std::string& _model, const std::string& _device, const std::string& _transport_id) {
+            memcpy(serial, _serial.data(), _serial.size());
+            memcpy(status, _status.data(), _status.size());
+            memcpy(product, _product.data(), _product.size());
+            memcpy(model, _model.data(), _model.size());
+            memcpy(device, _device.data(), _device.size());
+            memcpy(transport_id, _transport_id.data(), _transport_id.size());
+        }
+
         DevicesInfo(const DevicesInfo& info) {
             memcpy(serial, info.serial, std::size(info.serial));
             memcpy(status, info.status, std::size(info.status));
+            memcpy(product, info.product, std::size(info.product));
+            memcpy(model, info.model, std::size(info.model));
+            memcpy(device, info.device, std::size(info.device));
+            memcpy(transport_id, info.transport_id, std::size(info.transport_id));
         }
 
         DevicesInfo(DevicesInfo&& info) {
             memcpy(serial, info.serial, std::size(info.serial));
             memcpy(status, info.status, std::size(info.status));
+            memcpy(product, info.product, std::size(info.product));
+            memcpy(model, info.model, std::size(info.model));
+            memcpy(device, info.device, std::size(info.device));
+            memcpy(transport_id, info.transport_id, std::size(info.transport_id));
         }
 
         char serial[16] = {0};
         char status[16] = {0};
+        char product[16] = {0};
+        char model[16] = {0};
+        char device[16] = {0};
+        char transport_id[16] = {0};
     };
 
     HostCommand();
@@ -43,6 +65,7 @@ class HostCommand : public AdbCommand {
     int execute_cmd(std::string_view cmd) override;
     int get_version(int& ARGS_OUT version);
     int get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list);
+    int get_devices_with_path(std::vector<DevicesInfo>& ARGS_OUT devices_list);
 };
 
 #endif  // HOST_COMMAND_H_

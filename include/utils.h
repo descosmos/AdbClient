@@ -12,6 +12,10 @@
 // #define ADB_DEBUG
 #endif  // ADB_DEBUG
 
+#define DISALLOW_ASSIGN(TypeName)     \
+    void operator=(const TypeName &) = delete; \
+    void operator=(TypeName &&) = delete;      \
+
 #define DISALLOW_COPY_AND_ASSIGN(TypeName)     \
     void operator=(const TypeName &) = delete; \
     void operator=(TypeName &&) = delete;      \
@@ -44,6 +48,6 @@
 constexpr int DEFAULT_ADB_PORT = 5037;
 
 std::vector<std::string> string_split(const std::string &str, char delimiter);
-std::string unique_character(std::string &str);
+void unique_character(std::string &str);
 
 #endif  // UTILS_H_

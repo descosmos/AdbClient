@@ -16,9 +16,8 @@ std::vector<std::string> string_split(const std::string &str, char delimiter) {
     return res;
 }
 
-std::string unique_character(std::string &str) {
+void unique_character(std::string &str) {
     auto res_it = std::unique(str.begin(), str.end(), [](char lhs, char rhs) { return lhs == rhs && lhs == ' '; });
 
     str.erase(res_it, str.end());
-    return str;
 }

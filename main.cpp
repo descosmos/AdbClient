@@ -40,15 +40,21 @@ int main(int argc, char* argv[]) {
     hostCommand.get_version(version);
     ADB_LOGI("version: %d\n", version);
 
-
     std::vector<HostCommand::DevicesInfo> devices_list;
     hostCommand.get_devices(devices_list);
     for (const auto& device : devices_list) {
-        ADB_LOGI("devices_list: %s %s\n", device.serial, device.status);
+        ADB_LOGI("devices_list: %s %s %s %s %s %s\n", device.serial, device.status, device.product, device.model,
+                 device.device, device.transport_id);
     }
-    
+
+    devices_list.clear();
+    hostCommand.get_devices_with_path(devices_list);
+    for (const auto& device : devices_list) {
+        ADB_LOGI("devices_list: %s %s %s %s %s %s\n", device.serial, device.status, device.product, device.model,
+                 device.device, device.transport_id);
+    }
     // hostCommand.m_tcp_client.stop();
     // hostCommand.m_tcp_client.closesocket();
-    
+
     return 0;
 }
