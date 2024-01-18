@@ -46,12 +46,14 @@ class HostCommand : public AdbCommand {
             memcpy(transport_id, info.transport_id, std::size(info.transport_id));
         }
 
-        char serial[16] = {0};
+        char serial[32] = {0};
         char status[16] = {0};
         char product[16] = {0};
         char model[16] = {0};
         char device[16] = {0};
         char transport_id[16] = {0};
+        // unused
+        char __pack[16] = {0};
     };
 
     HostCommand();
@@ -67,11 +69,12 @@ class HostCommand : public AdbCommand {
     int get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list);
     int get_devices_with_path(std::vector<DevicesInfo>& ARGS_OUT devices_list);
     int kill();
+    int connect(std::string_view host, std::string_view port);
+    int disconnect(std::string_view host, std::string_view port);
     
     // TODO: fixme
     int track_devices();
-    int connect();
-    int disconnect();
+
 };
 
 #endif  // HOST_COMMAND_H_

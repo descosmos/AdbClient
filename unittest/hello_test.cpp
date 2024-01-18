@@ -7,6 +7,11 @@
 #include "htime.h"
 #include "utils.h"
 
+#ifndef WIFI_TEST
+// #define WIFI_TEST // test in wifi mode
+
+#endif // WIFI_TEST
+
 using namespace hv;
 
 typedef std::vector<std::string> vec_str;
@@ -64,7 +69,17 @@ TEST(HostCommandTest, BasicAssertions) {
     ASSERT_NE(status, -1);
     ASSERT_NE(devices_list.size(), 6);
 
-    // adb kill
-    status = hostCommand.kill();
+#ifdef WIFI_TEST
+    // adb connect
+    status = hostCommand.connect("10.11.234.57", "1314");
     ASSERT_NE(status, -1);
+
+    // adb disconnect
+    status = hostCommand.disconnect("10.11.234.57", "1314");
+    ASSERT_NE(status, -1);
+#endif
+
+    // adb kill
+    // status = hostCommand.kill();
+    // ASSERT_NE(status, -1);
 }

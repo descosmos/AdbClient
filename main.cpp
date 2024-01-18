@@ -54,7 +54,11 @@ int main(int argc, char* argv[]) {
                  device.device, device.transport_id);
     }
 
-    hostCommand.kill();
+    // hostCommand.connect("10.11.234.57", "1314");
+
+    // hostCommand.disconnect("10.11.234.57", "1314");
+
+    // hostCommand.kill();
 
     hostCommand.m_tcp_client.stop();
     hostCommand.m_tcp_client.closesocket();

@@ -346,6 +346,128 @@ int HostCommand::kill() {
 
 int HostCommand::track_devices() { return -1; }
 
-int HostCommand::connect() { return -1; }
+int HostCommand::connect(std::string_view host, std::string_view port) {
+    std::string cmd = STRING_CONCAT("host", ":connect:");
+    cmd.append(host).append(":").append(port);
+    
+    int status = -1;
 
-int HostCommand::disconnect() { return -1; }
+    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
+        std::string peeraddr = channel->peeraddr();
+        if (channel->isConnected()) {
+            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
+            channel->write(str);
+            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+        } else {
+            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+            weak_up();
+        }
+        if (m_tcp_client.isReconnect()) {
+            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
+                     m_tcp_client.reconn_setting->cur_delay);
+        }
+    };
+    set_client_on_connection_callback(connection_callback);
+
+    auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
+        ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
+        if (buf->size() > 4) {
+            if (strstr((char*)buf->data(), "OKAY") != NULL) {
+                status = 0;
+            } else {
+                status = -1;
+            }
+        } else if (buf->size() == 4) {
+            if (strcmp((char*)buf->data(), "OKAY") == 0) {
+                status = 0;
+            } else {
+                status = -1;
+            }
+        } else {
+            // TODO: buf-size < 4
+        }
+
+        memset(buf->data(), 0, buf->size());
+    };
+    set_client_on_message_callback(message_callback);
+
+    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
+    // hv::Buffer* buf) {};
+    // set_client_on_write_complete_callback(write_complete_callback);
+
+    finished = 0;
+
+    m_tcp_client.startConnect();
+    m_tcp_client.start();
+
+    waits();
+
+    if (status == -1) {
+        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+    }
+
+    return status;
+}
+
+int HostCommand::disconnect(std::string_view host, std::string_view port) {
+    std::string cmd = STRING_CONCAT("host", ":disconnect:");
+    cmd.append(host).append(":").append(port);
+    
+    int status = -1;
+
+    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
+        std::string peeraddr = channel->peeraddr();
+        if (channel->isConnected()) {
+            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
+            channel->write(str);
+            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+        } else {
+            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+            weak_up();
+        }
+        if (m_tcp_client.isReconnect()) {
+            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
+                     m_tcp_client.reconn_setting->cur_delay);
+        }
+    };
+    set_client_on_connection_callback(connection_callback);
+
+    auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
+        ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
+        if (buf->size() > 4) {
+            if (strstr((char*)buf->data(), "OKAY") != NULL) {
+                status = 0;
+            } else {
+                status = -1;
+            }
+        } else if (buf->size() == 4) {
+            if (strcmp((char*)buf->data(), "OKAY") == 0) {
+                status = 0;
+            } else {
+                status = -1;
+            }
+        } else {
+            // TODO: buf-size < 4
+        }
+
+        memset(buf->data(), 0, buf->size());
+    };
+    set_client_on_message_callback(message_callback);
+
+    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
+    // hv::Buffer* buf) {};
+    // set_client_on_write_complete_callback(write_complete_callback);
+
+    finished = 0;
+
+    m_tcp_client.startConnect();
+    m_tcp_client.start();
+
+    waits();
+
+    if (status == -1) {
+        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+    }
+
+    return status;
+}
