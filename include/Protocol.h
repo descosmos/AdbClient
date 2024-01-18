@@ -14,5 +14,6 @@ std::string_view DONE = "DONE"sv;
 std::string_view SEND = "SEND"sv;
 std::string_view QUIT = "QUIT"sv;
 
+// TODO: Generate this file by protobuf according to https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/proto/devices.proto?q=unauthorized&ss=android%2Fplatform%2Fsuperproject%2Fmain
 
 #endif // PROTOCOL_H_
