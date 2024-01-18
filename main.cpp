@@ -53,8 +53,11 @@ int main(int argc, char* argv[]) {
         ADB_LOGI("devices_list: %s %s %s %s %s %s\n", device.serial, device.status, device.product, device.model,
                  device.device, device.transport_id);
     }
-    // hostCommand.m_tcp_client.stop();
-    // hostCommand.m_tcp_client.closesocket();
+
+    hostCommand.kill();
+
+    hostCommand.m_tcp_client.stop();
+    hostCommand.m_tcp_client.closesocket();
 
     return 0;
 }

@@ -66,6 +66,12 @@ class HostCommand : public AdbCommand {
     int get_version(int& ARGS_OUT version);
     int get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list);
     int get_devices_with_path(std::vector<DevicesInfo>& ARGS_OUT devices_list);
+    int kill();
+    
+    // TODO: fixme
+    int track_devices();
+    int connect();
+    int disconnect();
 };
 
 #endif  // HOST_COMMAND_H_
