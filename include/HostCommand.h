@@ -9,7 +9,7 @@ class HostCommand : public AdbCommand {
    public:
     DISALLOW_ASSIGN(HostCommand);
 
-    struct DevicesInfo {
+    PACK(struct DevicesInfo {
        public:
         DevicesInfo() {}
 
@@ -54,7 +54,7 @@ class HostCommand : public AdbCommand {
         char transport_id[16] = {0};
         // unused
         char __pack[16] = {0};
-    };
+    });
 
     HostCommand();
     ~HostCommand();
