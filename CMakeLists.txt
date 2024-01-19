@@ -17,6 +17,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(SRC
     ${PROJECT_SOURCE_DIR}/src/utils.cpp
+    ${PROJECT_SOURCE_DIR}/src/DeviceInfo.cpp
     ${PROJECT_SOURCE_DIR}/src/android/stringprintf.cpp
     ${PROJECT_SOURCE_DIR}/src/AdbCommand.cpp
     ${PROJECT_SOURCE_DIR}/src/HostCommand.cpp
