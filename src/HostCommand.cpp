@@ -111,7 +111,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
     return status;
 }
 
-void get_device_info_from_buf(std::vector<HostCommand::DevicesInfo>& ARGS_OUT devices_list,
+void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list,
                               const std::string& ARGS_IN buf) {
     std::vector<std::string> devices_list_tmp = string_split(buf, '\n');
     devices_list_tmp.pop_back();  // pop null
@@ -133,17 +133,25 @@ void get_device_info_from_buf(std::vector<HostCommand::DevicesInfo>& ARGS_OUT de
         }
 #endif
         if (devices_info.size() > 3) {
-            HostCommand::DevicesInfo info(devices_info[0], devices_info[1], devices_info[2], devices_info[3],
-                                          devices_info[4], devices_info[5]);
+            DeviceInfo info;
+            info.serial = devices_info[0];
+            info.state = devices_info[1];
+            info.product = string_split(devices_info[2], ':')[1];
+            info.model = string_split(devices_info[3], ':')[1];
+            info.device = string_split(devices_info[4], ':')[1];
+            info.transport_id = std::atoi(string_split(devices_info[5], ':')[1].c_str());
+            
             devices_list.push_back(info);
         } else {
-            HostCommand::DevicesInfo info(devices_info[0], devices_info[1]);
+            DeviceInfo info;
+            info.serial = devices_info[0];
+            info.state = devices_info[1];
             devices_list.push_back(info);
         }
     }
 }
 
-int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
+int HostCommand::get_devices(std::vector<DeviceInfo>& ARGS_OUT devices_list) {
     std::string_view cmd = STRING_CONCAT("host", ":devices");
     int status = -1;
 
@@ -211,7 +219,7 @@ int HostCommand::get_devices(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
     return status;
 }
 
-int HostCommand::get_devices_with_path(std::vector<DevicesInfo>& ARGS_OUT devices_list) {
+int HostCommand::get_devices_with_path(std::vector<DeviceInfo>& ARGS_OUT devices_list) {
     std::string_view cmd = STRING_CONCAT("host", ":devices-l");
     int status = -1;
 
@@ -372,7 +380,9 @@ int HostCommand::track_devices() {
             if (strstr((char*)buf->data(), "OKAY") != NULL) {
                 status = 0;
             } else {
-                status = -1;
+                auto vec = string_split(std::string((char*)(buf->data())), '\t');
+                printf("device: %s   state: %s", vec[0].c_str(), vec[1].c_str());
+                status = 0;
             }
         } else if (buf->size() == 4) {
             if (strcmp((char*)buf->data(), "OKAY") == 0) {

@@ -58,13 +58,13 @@ TEST(HostCommandTest, BasicAssertions) {
     ASSERT_GE(version, 0);
 
     // adb devices
-    std::vector<HostCommand::DevicesInfo> devices_list;
+    std::vector<DeviceInfo> devices_list;
     status = hostCommand.get_devices(devices_list);
     ASSERT_NE(status, -1);
     ASSERT_NE(devices_list.size(), 2);
 
     // adb devices -l
-    std::vector<HostCommand::DevicesInfo> devices_list_l;
+    std::vector<DeviceInfo> devices_list_l;
     status = hostCommand.get_devices_with_path(devices_list_l);
     ASSERT_NE(status, -1);
     ASSERT_NE(devices_list.size(), 6);

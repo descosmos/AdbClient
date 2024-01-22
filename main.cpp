@@ -40,18 +40,18 @@ int main(int argc, char* argv[]) {
     // hostCommand.get_version(version);
     // ADB_LOGI("version: %d\n", version);
 
-    // std::vector<HostCommand::DevicesInfo> devices_list;
+    // std::vector<DeviceInfo> devices_list;
     // hostCommand.get_devices(devices_list);
     // for (const auto& device : devices_list) {
-    //     ADB_LOGI("devices_list: %s %s %s %s %s %s\n", device.serial, device.status, device.product, device.model,
-    //              device.device, device.transport_id);
+    //     ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(), device.product.c_str(), device.model.c_str(),
+    //              device.device.c_str(), device.transport_id);
     // }
 
     // devices_list.clear();
     // hostCommand.get_devices_with_path(devices_list);
     // for (const auto& device : devices_list) {
-    //     ADB_LOGI("devices_list: %s %s %s %s %s %s\n", device.serial, device.status, device.product, device.model,
-    //              device.device, device.transport_id);
+    //     ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(), device.product.c_str(), device.model.c_str(),
+    //              device.device.c_str(), device.transport_id);
     // }
 
     // hostCommand.connect("10.11.234.57", "1314");
