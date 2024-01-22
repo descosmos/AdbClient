@@ -4,13 +4,18 @@
 #include <string>
 
 #include "HostCommand.h"
+#include "HostSerialCommand.h"
 #include "htime.h"
 #include "utils.h"
 
 #ifndef WIFI_TEST
-// #define WIFI_TEST // test in wifi mode
+#define WIFI_TEST // test in wifi mode
+#endif  // WIFI_TEST
 
-#endif // WIFI_TEST
+#ifndef HOST_KILL_TEST
+// #define HOST_KILL_TEST  // After "adb kill" executed, the subsequent test cannot execute correctly, for which I have
+// to close it temporarily.
+#endif  // HOST_KILL_TEST
 
 using namespace hv;
 
@@ -77,9 +82,61 @@ TEST(HostCommandTest, BasicAssertions) {
     // adb disconnect
     status = hostCommand.disconnect("10.11.234.57", "1314");
     ASSERT_NE(status, -1);
-#endif
+#endif  // WIFI_TEST
 
+#ifdef HOST_KILL_TEST
     // adb kill
-    // status = hostCommand.kill();
-    // ASSERT_NE(status, -1);
+    status = hostCommand.kill();
+    ASSERT_NE(status, -1);
+#endif  // HOST_KILL_TEST
+}
+
+TEST(HostSerialCommandTest, BasicAssertions) {
+    int remote_port = 5037;
+    const char* remote_host = "127.0.0.1";
+    std::string_view serial = "18fd5384";
+
+    HostSerialCommand hostSerialCommand;
+    int connfd = hostSerialCommand.m_tcp_client.createsocket(remote_port, remote_host);
+    ASSERT_GE(connfd, 0);
+
+    // remove all forward
+    ASSERT_NE(hostSerialCommand.kill_forward_all(serial), -1);
+
+    // adb forward local:port remote:port -s [SERIAL]
+    hostSerialCommand.forward(serial, "tcp:1346", "tcp:1346");
+    hostSerialCommand.forward(serial, "tcp:1345", "tcp:1345");
+    std::vector<std::string> forward_list;
+    hostSerialCommand.list_forward(serial, forward_list);
+    ASSERT_EQ(forward_list.size(), 2);
+
+    // adb forward --remove LOCAL -s [SERIAL]
+    hostSerialCommand.kill_forward(serial, "tcp:1345");
+    forward_list.clear();
+    hostSerialCommand.list_forward(serial, forward_list);
+    ASSERT_EQ(forward_list.size(), 1);
+
+    // adb forward --remove-all -s [SERIAL]
+    hostSerialCommand.kill_forward_all(serial);
+    forward_list.clear();
+    hostSerialCommand.list_forward(serial, forward_list);
+    ASSERT_TRUE(forward_list.empty());
+
+    // adb get-devpath -s [SERIAL]
+    std::string device_path;
+    hostSerialCommand.get_device_path(serial, device_path);
+    ASSERT_FALSE(device_path.empty());
+
+    // adb get-serialno -s [SERIAL]
+    std::string serial_no;
+    hostSerialCommand.get_serial_no(serial, serial_no);
+    ASSERT_FALSE(serial_no.empty());
+
+    // adb get-state -s [SERIAL]
+    std::string state;
+    hostSerialCommand.get_state(serial, state);
+    ASSERT_FALSE(state.empty());
+
+    hostSerialCommand.m_tcp_client.stop();
+    hostSerialCommand.m_tcp_client.closesocket();
 }

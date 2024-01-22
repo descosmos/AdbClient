@@ -4,6 +4,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <thread>
+#include <format>
 
 #include "android/stringprintf.h"
 
@@ -11,16 +12,16 @@
 
 using namespace std::chrono_literals;
 
-std::condition_variable cv;
-std::mutex _mutex;
-int finished = false;
+static std::condition_variable cv;
+static std::mutex _mutex;
+static int finished = false;
 
-void waits() {
+static void waits() {
     std::unique_lock<std::mutex> lk(_mutex);
     cv.wait(lk, [&] { return finished == 1; });
 }
 
-void weak_up() {
+static void weak_up() {
     {
         std::lock_guard<std::mutex> lk(_mutex);
         finished = 1;
@@ -419,9 +420,8 @@ int HostCommand::track_devices() {
     return status;
 }
 
-int HostCommand::connect(std::string_view host, std::string_view port) {
-    std::string cmd = STRING_CONCAT("host", ":connect:");
-    cmd.append(host).append(":").append(port);
+int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN port) {
+    std::string cmd = std::format("host:connect:{0}:{1}", host, port);
     
     int status = -1;
 
@@ -446,6 +446,8 @@ int HostCommand::connect(std::string_view host, std::string_view port) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
         if (buf->size() > 4) {
             if (strstr((char*)buf->data(), "OKAY") != NULL) {
+                status = 0;
+            } else if (strstr((char*)buf->data(), "connected")) {
                 status = 0;
             } else {
                 status = -1;
@@ -482,9 +484,8 @@ int HostCommand::connect(std::string_view host, std::string_view port) {
     return status;
 }
 
-int HostCommand::disconnect(std::string_view host, std::string_view port) {
-    std::string cmd = STRING_CONCAT("host", ":disconnect:");
-    cmd.append(host).append(":").append(port);
+int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS_IN port) {
+    std::string cmd = std::format("host:disconnect:{0}:{1}", host, port);
     
     int status = -1;
 
@@ -509,6 +510,8 @@ int HostCommand::disconnect(std::string_view host, std::string_view port) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
         if (buf->size() > 4) {
             if (strstr((char*)buf->data(), "OKAY") != NULL) {
+                status = 0;
+            } else if (strstr((char*)buf->data(), "disconnected")) {
                 status = 0;
             } else {
                 status = -1;

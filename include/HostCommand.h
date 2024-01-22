@@ -23,8 +23,8 @@ class HostCommand : public AdbCommand {
     int get_devices(std::vector<DeviceInfo>& ARGS_OUT devices_list);
     int get_devices_with_path(std::vector<DeviceInfo>& ARGS_OUT devices_list);
     int kill();
-    int connect(std::string_view host, std::string_view port);
-    int disconnect(std::string_view host, std::string_view port);
+    int connect(std::string_view ARGS_IN host, std::string_view ARGS_IN port);
+    int disconnect(std::string_view ARGS_IN host, std::string_view ARGS_IN port);
     
     // TODO: fixme
     int track_devices();
