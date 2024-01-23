@@ -69,8 +69,12 @@ AdbCommand(class)
                  |---- local(method)
                  |
                  |---- tcpip(method)
+    			 |
+    			 |---- usb(method)
                  |
                  |---- logcat(method)
+    			 |
+    			 |---- get_properties(method)
 |
 |
 

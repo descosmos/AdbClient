@@ -5,11 +5,12 @@
 
 #include "HostCommand.h"
 #include "HostSerialCommand.h"
+#include "LocalCommand.h"
 #include "htime.h"
 #include "utils.h"
 
 #ifndef WIFI_TEST
-#define WIFI_TEST // test in wifi mode
+// #define WIFI_TEST  // test in wifi mode
 #endif  // WIFI_TEST
 
 #ifndef HOST_KILL_TEST
@@ -20,6 +21,10 @@
 using namespace hv;
 
 typedef std::vector<std::string> vec_str;
+
+int remote_port = 5037;
+const char* remote_host = "127.0.0.1";
+std::string_view serial = "18fd5384";
 
 TEST(UtilsTest, StringSplitAssertions) {
     std::string str1 = "Setence 1\nSetence 2";
@@ -44,14 +49,11 @@ TEST(UtilsTest, StringSplitAssertions) {
 
 TEST(UtilsTest, StringUniqueAssertions) {
     std::string str1 = "Setence1       Setence2";
-    unique_character(str1);
+    unique_spaces(str1);
     ASSERT_EQ(str1, std::string("Setence1 Setence2"));
 }
 
 TEST(HostCommandTest, BasicAssertions) {
-    int remote_port = 5037;
-    const char* remote_host = "127.0.0.1";
-
     HostCommand hostCommand;
     int connfd = hostCommand.m_tcp_client.createsocket(remote_port, remote_host);
     ASSERT_GE(connfd, 0);
@@ -92,10 +94,6 @@ TEST(HostCommandTest, BasicAssertions) {
 }
 
 TEST(HostSerialCommandTest, BasicAssertions) {
-    int remote_port = 5037;
-    const char* remote_host = "127.0.0.1";
-    std::string_view serial = "18fd5384";
-
     HostSerialCommand hostSerialCommand;
     int connfd = hostSerialCommand.m_tcp_client.createsocket(remote_port, remote_host);
     ASSERT_GE(connfd, 0);
@@ -139,4 +137,29 @@ TEST(HostSerialCommandTest, BasicAssertions) {
 
     hostSerialCommand.m_tcp_client.stop();
     hostSerialCommand.m_tcp_client.closesocket();
+}
+
+TEST(LocalCommandTest, BasicAssertions) {
+    LocalCommand localCommand;
+    int connfd = localCommand.m_tcp_client.createsocket(remote_port, remote_host);
+    ASSERT_GE(connfd, 0);
+    std::vector<std::string> res;
+
+    // adb shell getprop ro.build.version.release
+    localCommand.shell(serial, "getprop ro.build.version.release", res);
+    ASSERT_EQ(res.size(), 1);
+    res.clear();
+
+    // adb shell getprop
+    localCommand.get_properties(serial, res);
+    ASSERT_FALSE(res.empty());
+    res.clear();
+
+    // adb shell pm list packages
+    localCommand.list_packages(serial, res);
+    ASSERT_FALSE(res.empty());
+    res.clear();
+
+    localCommand.m_tcp_client.stop();
+    localCommand.m_tcp_client.closesocket();
 }

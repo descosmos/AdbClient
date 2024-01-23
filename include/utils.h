@@ -55,6 +55,6 @@
 constexpr int DEFAULT_ADB_PORT = 5037;
 
 std::vector<std::string> string_split(const std::string &str, char delimiter);
-void unique_character(std::string &str);
+void unique_spaces(std::string &str);
 
 #endif  // UTILS_H_

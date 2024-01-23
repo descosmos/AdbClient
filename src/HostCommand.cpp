@@ -247,11 +247,11 @@ int HostCommand::get_devices_with_path(std::vector<DeviceInfo>& ARGS_OUT devices
             if (buf->size() > 4) {
                 if (strstr((char*)buf->data(), "OKAY") != NULL) {
                     std::string tmp = std::string((char*)buf->data() + 8);
-                    unique_character(tmp);
+                    unique_spaces(tmp);
                     get_device_info_from_buf(devices_list, tmp);
                 } else {
                     std::string tmp = std::string((char*)buf->data() + 4);
-                    unique_character(tmp);
+                    unique_spaces(tmp);
                     get_device_info_from_buf(devices_list, tmp);
                 }
                 status = 0;

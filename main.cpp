@@ -2,6 +2,7 @@
 
 #include "HostCommand.h"
 #include "HostSerialCommand.h"
+#include "LocalCommand.h"
 #include "android/stringprintf.h"
 #include "htime.h"
 #include "libhv_evpp/TcpClient.h"
@@ -123,11 +124,52 @@ int execute_serial_command() {
     return 0;
 }
 
+int execute_local_command() {
+    int remote_port = 5037;
+    const char* remote_host = "127.0.0.1";
+    std::string_view serial = "18fd5384";
+
+    LocalCommand localCommand;
+    int connfd = localCommand.m_tcp_client.createsocket(remote_port, remote_host);
+    if (connfd < 0) {
+        return -20;
+        ADB_LOGI("createsocket failed.\n");
+    }
+    
+    ADB_LOGI("client connect to port %d, connfd=%d ...\n", remote_port, connfd);
+
+    // localCommand.transport(serial);
+
+    std::vector<std::string> lines;
+    localCommand.shell(serial, "getprop ro.build.version.release", lines); 
+    localCommand.shell(serial, "ls /sys/class/thermal/", lines);
+    for (const auto& line : lines) {
+        ADB_LOGI("%s \n", line.c_str());
+    }
+
+    lines.clear();
+    localCommand.list_packages(serial, lines);
+    for (const auto& line : lines) {
+        ADB_LOGI("%s \n", line.c_str());
+    }
+
+    lines.clear();
+    localCommand.get_properties(serial, lines);
+    for (const auto& line : lines) {
+        ADB_LOGI("%s \n", line.c_str());
+    }
+
+    localCommand.m_tcp_client.stop();
+    localCommand.m_tcp_client.closesocket();
+
+    return 0;
+}
+
 int main(int argc, char* argv[]) {
 
-    execute_host_command();
-
-    execute_serial_command();
+    // execute_host_command();
+    // execute_serial_command();
+    execute_local_command();
 
     return 0;
 }
