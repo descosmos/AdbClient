@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <iostream>
 
 #include "HostCommand.h"
@@ -12,7 +14,7 @@
 #define TEST_TLS 0
 
 using namespace hv;
- 
+
 int execute_host_command() {
     int remote_port = 5037;
     const char* remote_host = "127.0.0.1";
@@ -45,15 +47,15 @@ int execute_host_command() {
     std::vector<DeviceInfo> devices_list;
     hostCommand.get_devices(devices_list);
     for (const auto& device : devices_list) {
-        ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(), device.product.c_str(), device.model.c_str(),
-                 device.device.c_str(), device.transport_id);
+        ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(),
+                 device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
     }
 
     devices_list.clear();
     hostCommand.get_devices_with_path(devices_list);
     for (const auto& device : devices_list) {
-        ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(), device.product.c_str(), device.model.c_str(),
-                 device.device.c_str(), device.transport_id);
+        ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(),
+                 device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
     }
 
     hostCommand.connect("10.11.234.57", "1314");
@@ -128,6 +130,7 @@ int execute_local_command() {
     int remote_port = 5037;
     const char* remote_host = "127.0.0.1";
     std::string_view serial = "18fd5384";
+    // std::string_view serial = "d17cdac6";
 
     LocalCommand localCommand;
     int connfd = localCommand.m_tcp_client.createsocket(remote_port, remote_host);
@@ -135,14 +138,14 @@ int execute_local_command() {
         return -20;
         ADB_LOGI("createsocket failed.\n");
     }
-    
+
     ADB_LOGI("client connect to port %d, connfd=%d ...\n", remote_port, connfd);
 
     // localCommand.transport(serial);
 
     std::vector<std::string> lines;
-    localCommand.shell(serial, "getprop ro.build.version.release", lines); 
-    localCommand.shell(serial, "ls /sys/class/thermal/", lines);
+    localCommand.shell(serial, "getprop ro.build.version.release", lines);
+    // localCommand.shell(serial, "ls /sys/class/thermal/", lines);
     for (const auto& line : lines) {
         ADB_LOGI("%s \n", line.c_str());
     }
@@ -159,6 +162,54 @@ int execute_local_command() {
         ADB_LOGI("%s \n", line.c_str());
     }
 
+    std::string data;
+    localCommand.screencap(serial, data);
+    ADB_LOGI("data.size: %d\n", data.size());
+    FILE* file = fopen("screencap.png", "wb+");  // 以二进制写入模式打开文件
+    if (file != nullptr) {
+        fwrite(data.c_str(), sizeof(char), data.size(), file);  // 写入二进制数据
+
+        fclose(file);  // 关闭文件
+        ADB_LOGI("Binary data has been written to file.\n");
+    } else {
+        ADB_LOGI("Failed to open file for writing.\n");
+    }
+
+    // localCommand.tcpip(serial, 5678);
+    // localCommand.usb(serial);
+
+    localCommand.root(serial);
+    localCommand.sync(serial);
+
+    std::vector<std::string> forward_list;
+
+    localCommand.reverse(serial, "tcp:1247", "tcp:1247");
+    localCommand.reverse(serial, "tcp:1248", "tcp:1248");
+    localCommand.reverse(serial, "tcp:1249", "tcp:1249", true);
+
+    localCommand.list_reverse(serial, forward_list);
+    ADB_LOGI("forward_list.size: %d\n", forward_list.size());
+    for (const auto& forward : forward_list) {
+        ADB_LOGI("%s \n", forward.c_str());
+    }
+    forward_list.clear();
+
+    localCommand.kill_reverse(serial, "tcp:1248");
+    localCommand.list_reverse(serial, forward_list);
+    ADB_LOGI("forward_list.size: %d\n", forward_list.size());
+    for (const auto& forward : forward_list) {
+        ADB_LOGI("%s \n", forward.c_str());
+    }
+    forward_list.clear();
+
+    localCommand.kill_reverse_all(serial);
+    localCommand.list_reverse(serial, forward_list);
+    ADB_LOGI("forward_list.size: %d\n", forward_list.size());
+    for (const auto& forward : forward_list) {
+        ADB_LOGI("%s \n", forward.c_str());
+    }
+    forward_list.clear();
+
     localCommand.m_tcp_client.stop();
     localCommand.m_tcp_client.closesocket();
 
@@ -166,7 +217,6 @@ int execute_local_command() {
 }
 
 int main(int argc, char* argv[]) {
-
     // execute_host_command();
     // execute_serial_command();
     execute_local_command();

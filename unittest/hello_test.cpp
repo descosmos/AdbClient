@@ -18,6 +18,14 @@
 // to close it temporarily.
 #endif  // HOST_KILL_TEST
 
+#ifndef LOCAL_USB_TEST
+// #define LOCAL_USB_TEST  // adb -s usb
+#endif // LOCAL_USB_TEST
+
+#ifndef LOCAL_TCPIP_TEST
+// #define LOCAL_TCPIP_TEST  // adb -s tcpip
+#endif // LOCAL_TCPIP_TEST
+
 using namespace hv;
 
 typedef std::vector<std::string> vec_str;
@@ -140,25 +148,76 @@ TEST(HostSerialCommandTest, BasicAssertions) {
 }
 
 TEST(LocalCommandTest, BasicAssertions) {
+    int status;
     LocalCommand localCommand;
     int connfd = localCommand.m_tcp_client.createsocket(remote_port, remote_host);
     ASSERT_GE(connfd, 0);
     std::vector<std::string> res;
 
-    // adb shell getprop ro.build.version.release
-    localCommand.shell(serial, "getprop ro.build.version.release", res);
+    // adb -s [SERIAL] shell getprop ro.build.version.release
+    status = localCommand.shell(serial, "getprop ro.build.version.release", res);
     ASSERT_EQ(res.size(), 1);
     res.clear();
 
-    // adb shell getprop
-    localCommand.get_properties(serial, res);
+    // adb -s [SERIAL] shell getprop
+    status = localCommand.get_properties(serial, res);
     ASSERT_FALSE(res.empty());
     res.clear();
 
-    // adb shell pm list packages
-    localCommand.list_packages(serial, res);
+    // adb -s [SERIAL] shell pm list packages
+    status = localCommand.list_packages(serial, res);
     ASSERT_FALSE(res.empty());
     res.clear();
+
+    // adb -s [SERIAL] shell /system/bin/screencap -p
+    std::string data;
+    status = localCommand.screencap(serial, data);
+    ASSERT_FALSE(data.empty());
+
+    // adb -s [SERIAL] root
+    status = localCommand.root(serial);
+    ASSERT_EQ(status, 0);
+
+    // adb -s [SERIAL] sync
+    localCommand.sync(serial);
+    ASSERT_EQ(status, 0);
+
+    std::vector<std::string> forward_list;
+    
+    // remove all forward
+    ASSERT_NE(localCommand.kill_reverse_all(serial), -1);
+
+    // adb -s [SERIAL] reverse local:port remote:port 
+    localCommand.reverse(serial, "tcp:1247", "tcp:1247");
+    localCommand.reverse(serial, "tcp:1248", "tcp:1248");
+    localCommand.reverse(serial, "tcp:1249", "tcp:1249", true);
+    localCommand.list_reverse(serial, forward_list);
+    ASSERT_EQ(forward_list.size(), 3);
+    forward_list.clear();
+
+    // adb -s [SERIAL] reverse --remove LOCAL 
+    localCommand.kill_reverse(serial, "tcp:1248");
+    localCommand.list_reverse(serial, forward_list);
+    ASSERT_EQ(forward_list.size(), 2);
+    forward_list.clear();
+
+    // adb -s [SERIAL] reverse --remove-all 
+    localCommand.kill_reverse_all(serial);
+    localCommand.list_reverse(serial, forward_list);
+    ASSERT_TRUE(forward_list.empty());
+    forward_list.clear();
+
+#ifdef LOCAL_TCPIP_TEST
+    // adb -s [SERIAL] tcpip PORT
+    status = localCommand.tcpip(serial, 5678);
+    ASSERT_EQ(status, 0);
+#endif // LOCAL_TCPIP_TEST
+
+#ifdef LOCAL_USB_TEST
+    // adb -s [SERIAL] usb
+    status = localCommand.usb(serial);
+    ASSERT_EQ(status, 0);
+#endif // LOCAL_USB_TEST
 
     localCommand.m_tcp_client.stop();
     localCommand.m_tcp_client.closesocket();
