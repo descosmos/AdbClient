@@ -103,7 +103,7 @@ TEST(HostSerialCommandTest, BasicAssertions) {
 
     // adb forward local:port remote:port -s [SERIAL]
     hostSerialCommand.forward(serial, "tcp:1346", "tcp:1346");
-    hostSerialCommand.forward(serial, "tcp:1345", "tcp:1345");
+    hostSerialCommand.forward(serial, "tcp:1345", "tcp:1345", true);
     std::vector<std::string> forward_list;
     hostSerialCommand.list_forward(serial, forward_list);
     ASSERT_EQ(forward_list.size(), 2);

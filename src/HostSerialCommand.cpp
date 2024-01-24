@@ -51,7 +51,12 @@ HostSerialCommand::~HostSerialCommand() {}
 
 int HostSerialCommand::forward(std::string_view serial, std::string_view local, std::string_view remote,
                                bool norebind) {
-    std::string cmd = std::format("host-serial:{0}:forward:norebind:{1};{2}", serial, local, remote);
+    std::string cmd;
+    if (norebind) {
+        cmd = std::format("host-serial:{0}:forward:norebind:{1};{2}", serial, local, remote);
+    } else {
+        cmd = std::format("host-serial:{0}:forward:{1};{2}", serial, local, remote);
+    }
 
     int status = -1;
 
