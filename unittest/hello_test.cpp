@@ -32,7 +32,7 @@ typedef std::vector<std::string> vec_str;
 
 int remote_port = 5037;
 const char* remote_host = "127.0.0.1";
-std::string_view serial = "18fd5384";
+std::string_view serial = "d17cdac6";
 
 TEST(UtilsTest, StringSplitAssertions) {
     std::string str1 = "Setence 1\nSetence 2";

@@ -1,33 +1,10 @@
 #include "HostCommand.h"
 
 #include <algorithm>
-#include <chrono>
-#include <condition_variable>
-#include <thread>
-#include <format>
 
 #include "android/stringprintf.h"
 
-#define STRING_CONCAT(a, b) a##b
-
 using namespace std::chrono_literals;
-
-static std::condition_variable cv;
-static std::mutex _mutex;
-static int finished = false;
-
-static void waits() {
-    std::unique_lock<std::mutex> lk(_mutex);
-    cv.wait(lk, [&] { return finished == 1; });
-}
-
-static void weak_up() {
-    {
-        std::lock_guard<std::mutex> lk(_mutex);
-        finished = 1;
-    }
-    cv.notify_all();
-}
 
 HostCommand::HostCommand() {}
 
@@ -98,7 +75,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -112,8 +89,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
     return status;
 }
 
-void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list,
-                              const std::string& ARGS_IN buf) {
+void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list, const std::string& ARGS_IN buf) {
     std::vector<std::string> devices_list_tmp = string_split(buf, '\n');
     devices_list_tmp.pop_back();  // pop null
 
@@ -141,7 +117,7 @@ void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list,
             info.model = string_split(devices_info[3], ':')[1];
             info.device = string_split(devices_info[4], ':')[1];
             info.transport_id = std::atoi(string_split(devices_info[5], ':')[1].c_str());
-            
+
             devices_list.push_back(info);
         } else {
             DeviceInfo info;
@@ -206,7 +182,7 @@ int HostCommand::get_devices(std::vector<DeviceInfo>& ARGS_OUT devices_list) {
     if (!m_tcp_client.isConnected()) {
         m_tcp_client.startConnect();
     }
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -278,7 +254,7 @@ int HostCommand::get_devices_with_path(std::vector<DeviceInfo>& ARGS_OUT devices
     if (!m_tcp_client.isConnected()) {
         m_tcp_client.startConnect();
     }
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -339,7 +315,7 @@ int HostCommand::kill() {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -355,7 +331,7 @@ int HostCommand::kill() {
 
 int HostCommand::track_devices() {
     std::string cmd = STRING_CONCAT("host", ":track-devices");
-    
+
     int status = -1;
 
     auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
@@ -403,14 +379,14 @@ int HostCommand::track_devices() {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
     while (true) {
         waits();
-        finished = 0;
+        m_command_finished = 0;
     }
 
     if (status == -1) {
@@ -422,7 +398,7 @@ int HostCommand::track_devices() {
 
 int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN port) {
     std::string cmd = std::format("host:connect:{0}:{1}", host, port);
-    
+
     int status = -1;
 
     auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
@@ -470,7 +446,7 @@ int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -486,7 +462,7 @@ int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN
 
 int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS_IN port) {
     std::string cmd = std::format("host:disconnect:{0}:{1}", host, port);
-    
+
     int status = -1;
 
     auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
@@ -534,7 +510,7 @@ int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();

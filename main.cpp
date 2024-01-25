@@ -15,10 +15,11 @@
 
 using namespace hv;
 
-int execute_host_command() {
-    int remote_port = 5037;
-    const char* remote_host = "127.0.0.1";
+int remote_port = 5037;
+const char* remote_host = "127.0.0.1";
+std::string_view serial = "d17cdac6";
 
+int execute_host_command() {
     HostCommand hostCommand;
     int connfd = hostCommand.m_tcp_client.createsocket(remote_port, remote_host);
     if (connfd < 0) {
@@ -73,10 +74,6 @@ int execute_host_command() {
 }
 
 int execute_serial_command() {
-    int remote_port = 5037;
-    const char* remote_host = "127.0.0.1";
-    std::string_view serial = "18fd5384";
-
     HostSerialCommand hostSerialCommand;
     int connfd = hostSerialCommand.m_tcp_client.createsocket(remote_port, remote_host);
     if (connfd < 0) {
@@ -127,11 +124,6 @@ int execute_serial_command() {
 }
 
 int execute_local_command() {
-    int remote_port = 5037;
-    const char* remote_host = "127.0.0.1";
-    std::string_view serial = "18fd5384";
-    // std::string_view serial = "d17cdac6";
-
     LocalCommand localCommand;
     int connfd = localCommand.m_tcp_client.createsocket(remote_port, remote_host);
     if (connfd < 0) {

@@ -1,8 +1,12 @@
 #ifndef ADB_COMMAND_H_
 #define ADB_COMMAND_H_
 
+#include <chrono>
+#include <condition_variable>
+#include <format>
 #include <functional>
 #include <string_view>
+#include <thread>
 
 #include "libhv_evpp/TcpClient.h"
 #include "libhv_evpp/TcpServer.h"
@@ -27,6 +31,13 @@ class AdbCommand {
 
     hv::TcpClient m_tcp_client;
     hv::TcpServer m_tcp_server;
+
+    std::condition_variable m_cv;
+    std::mutex m_mutex;
+    int m_command_finished = false;
+
+    void waits();
+    void weak_up();
 };
 
 #endif  // ADB_COMMAND_H_

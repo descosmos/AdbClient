@@ -1,33 +1,10 @@
 #include "HostSerialCommand.h"
 
 #include <algorithm>
-#include <chrono>
-#include <condition_variable>
-#include <format>
-#include <thread>
 
 #include "android/stringprintf.h"
 
-#define STRING_CONCAT(a, b) a##b
-
 using namespace std::chrono_literals;
-
-static std::condition_variable cv;
-static std::mutex _mutex;
-static int finished = false;
-
-static void waits() {
-    std::unique_lock<std::mutex> lk(_mutex);
-    cv.wait(lk, [&] { return finished == 1; });
-}
-
-static void weak_up() {
-    {
-        std::lock_guard<std::mutex> lk(_mutex);
-        finished = 1;
-    }
-    cv.notify_all();
-}
 
 void HostSerialCommand::set_client_on_connection_callback(std::function<void(const TSocketChannelPtr&)> callback) {
     m_tcp_client.onConnection = callback;
@@ -103,7 +80,7 @@ int HostSerialCommand::forward(std::string_view serial, std::string_view local, 
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -188,7 +165,7 @@ int HostSerialCommand::list_forward(std::string_view ARGS_IN serial, std::vector
     if (!m_tcp_client.isConnected()) {
         m_tcp_client.startConnect();
     }
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -250,7 +227,7 @@ int HostSerialCommand::kill_forward(std::string_view ARGS_IN serial, std::string
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -312,7 +289,7 @@ int HostSerialCommand::kill_forward_all(std::string_view ARGS_IN serial) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -376,7 +353,7 @@ int HostSerialCommand::get_device_path(std::string_view ARGS_IN serial, std::str
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -440,7 +417,7 @@ int HostSerialCommand::get_serial_no(std::string_view ARGS_IN serial, std::strin
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -504,7 +481,7 @@ int HostSerialCommand::get_state(std::string_view ARGS_IN serial, std::string& A
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();

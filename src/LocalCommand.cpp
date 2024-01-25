@@ -1,34 +1,11 @@
 #include "LocalCommand.h"
 
 #include <algorithm>
-#include <chrono>
-#include <condition_variable>
-#include <format>
-#include <thread>
 
 #include "Protocol.h"
 #include "android/stringprintf.h"
 
-#define STRING_CONCAT(a, b) a##b
-
 using namespace std::chrono_literals;
-
-static std::condition_variable cv;
-static std::mutex _mutex;
-static int finished = false;
-
-static void waits() {
-    std::unique_lock<std::mutex> lk(_mutex);
-    cv.wait(lk, [&] { return finished == 1; });
-}
-
-static void weak_up() {
-    {
-        std::lock_guard<std::mutex> lk(_mutex);
-        finished = 1;
-    }
-    cv.notify_all();
-}
 
 LocalCommand::LocalCommand() {}
 
@@ -90,7 +67,7 @@ int LocalCommand::transport(std::string_view ARGS_IN serial) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -98,7 +75,7 @@ int LocalCommand::transport(std::string_view ARGS_IN serial) {
     waits();
     // while (true) {
     //     waits();
-    //     finished = 0;
+    //     m_command_finished = 0;
     // }
 
     if (status == -1) {
@@ -171,7 +148,7 @@ int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_I
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -233,7 +210,7 @@ int LocalCommand::sync(std::string_view ARGS_IN serial) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -295,7 +272,7 @@ int LocalCommand::screencap(std::string_view ARGS_IN serial, std::string& ARGS_O
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -361,7 +338,7 @@ int LocalCommand::tcpip(std::string_view ARGS_IN serial, uint32_t ARGS_IN port) 
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -422,7 +399,7 @@ int LocalCommand::usb(std::string_view ARGS_IN serial) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -490,7 +467,7 @@ int LocalCommand::root(std::string_view ARGS_IN serial) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -556,7 +533,7 @@ int LocalCommand::reverse(std::string_view serial, std::string_view local, std::
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -640,7 +617,7 @@ int LocalCommand::list_reverse(std::string_view ARGS_IN serial, std::vector<std:
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -701,7 +678,7 @@ int LocalCommand::kill_reverse(std::string_view ARGS_IN serial, std::string_view
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();
@@ -762,7 +739,7 @@ int LocalCommand::kill_reverse_all(std::string_view ARGS_IN serial) {
     // hv::Buffer* buf) {};
     // set_client_on_write_complete_callback(write_complete_callback);
 
-    finished = 0;
+    m_command_finished = 0;
 
     m_tcp_client.startConnect();
     m_tcp_client.start();

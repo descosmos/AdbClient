@@ -12,9 +12,9 @@
 // #define ADB_DEBUG
 #endif  // ADB_DEBUG
 
-#define DISALLOW_ASSIGN(TypeName)     \
+#define DISALLOW_ASSIGN(TypeName)              \
     void operator=(const TypeName &) = delete; \
-    void operator=(TypeName &&) = delete;      \
+    void operator=(TypeName &&) = delete;
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName)     \
     void operator=(const TypeName &) = delete; \
@@ -51,6 +51,10 @@
     } while (0)
 
 #endif  // ADB_LOG
+
+#ifndef STRING_CONCAT
+#define STRING_CONCAT(a, b) a##b
+#endif  // STRING_CONCAT
 
 constexpr int DEFAULT_ADB_PORT = 5037;
 
