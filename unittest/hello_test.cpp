@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "HostCommand.h"
-#include "HostSerialCommand.h"
-#include "LocalCommand.h"
+#include "host_command.h"
+#include "host_serial_command.h"
+#include "local_command.h"
 #include "htime.h"
 #include "utils.h"
 

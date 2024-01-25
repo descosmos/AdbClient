@@ -1,7 +1,7 @@
 #ifndef HOST_SERICAL_COMMAND_H_
 #define HOST_SERICAL_COMMAND_H_
 
-#include "AdbCommand.h"
+#include "adb_command.h"
 
 class HostSerialCommand : public AdbCommand {
    public:

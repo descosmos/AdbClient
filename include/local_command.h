@@ -1,7 +1,7 @@
 #ifndef LOCAL_COMMAND_H_
 #define LOCAL_COMMAND_H_
 
-#include "AdbCommand.h"
+#include "adb_command.h"
 
 class LocalCommand : public AdbCommand {
    public:

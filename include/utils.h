@@ -2,7 +2,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#include "DeviceInfo.h"
+#include "device_info.h"
 
 #include <stdio.h>
 #include <string.h>

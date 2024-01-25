@@ -1,4 +1,4 @@
-#include "DeviceInfo.h"
+#include "device_info.h"
 
 std::string state_to_string(ConnectionState state) {
     switch (state) {

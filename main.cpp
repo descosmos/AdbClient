@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include "HostCommand.h"
-#include "HostSerialCommand.h"
-#include "LocalCommand.h"
+#include "host_command.h"
+#include "host_serial_command.h"
+#include "local_command.h"
 #include "android/stringprintf.h"
 #include "htime.h"
 #include "libhv_evpp/TcpClient.h"

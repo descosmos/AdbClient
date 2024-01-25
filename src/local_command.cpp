@@ -1,8 +1,8 @@
-#include "LocalCommand.h"
+#include "local_command.h"
 
 #include <algorithm>
 
-#include "Protocol.h"
+#include "protocol.h"
 #include "android/stringprintf.h"
 
 using namespace std::chrono_literals;

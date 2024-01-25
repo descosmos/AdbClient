@@ -17,12 +17,12 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(SRC
     ${PROJECT_SOURCE_DIR}/src/utils.cpp
-    ${PROJECT_SOURCE_DIR}/src/DeviceInfo.cpp
+    ${PROJECT_SOURCE_DIR}/src/device_info.cpp
     ${PROJECT_SOURCE_DIR}/src/android/stringprintf.cpp
-    ${PROJECT_SOURCE_DIR}/src/AdbCommand.cpp
-    ${PROJECT_SOURCE_DIR}/src/HostCommand.cpp
-    ${PROJECT_SOURCE_DIR}/src/LocalCommand.cpp
-    ${PROJECT_SOURCE_DIR}/src/HostSerialCommand.cpp
+    ${PROJECT_SOURCE_DIR}/src/adb_command.cpp
+    ${PROJECT_SOURCE_DIR}/src/host_command.cpp
+    ${PROJECT_SOURCE_DIR}/src/local_command.cpp
+    ${PROJECT_SOURCE_DIR}/src/host_serial_command.cpp
 )
 
 # library

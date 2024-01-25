@@ -1,4 +1,4 @@
-#include "AdbCommand.h"
+#include "adb_command.h"
 
 AdbCommand::AdbCommand() {}
 

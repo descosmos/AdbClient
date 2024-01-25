@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "AdbCommand.h"
-#include "DeviceInfo.h"
+#include "adb_command.h"
+#include "device_info.h"
 
 class HostCommand : public AdbCommand {
    public:
