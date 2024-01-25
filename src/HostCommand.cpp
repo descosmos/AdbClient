@@ -89,46 +89,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
     return status;
 }
 
-void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list, const std::string& ARGS_IN buf) {
-    std::vector<std::string> devices_list_tmp = string_split(buf, '\n');
-    devices_list_tmp.pop_back();  // pop null
-
-#ifdef ADB_DEBUG
-    ADB_LOGI("devices_list_tmp.size: %d\n", devices_list_tmp.size());
-#endif
-
-    for (auto& device : devices_list_tmp) {
-        ADB_LOGI("devices_list_tmp it: %s\n", device.c_str());
-        if (device.find('\t') != std::string::npos) {
-            device.replace(device.find('\t'), 1, 1, ' ');
-        }
-        std::vector<std::string> devices_info = string_split(device, ' ');
-#ifdef ADB_DEBUG
-        ADB_LOGI("devices_info.size: %d\n", devices_info.size());
-        for (auto& info : devices_info) {
-            ADB_LOGI("devices_info it: %s\n", info.c_str());
-        }
-#endif
-        if (devices_info.size() > 3) {
-            DeviceInfo info;
-            info.serial = devices_info[0];
-            info.state = devices_info[1];
-            info.product = string_split(devices_info[2], ':')[1];
-            info.model = string_split(devices_info[3], ':')[1];
-            info.device = string_split(devices_info[4], ':')[1];
-            info.transport_id = std::atoi(string_split(devices_info[5], ':')[1].c_str());
-
-            devices_list.push_back(info);
-        } else {
-            DeviceInfo info;
-            info.serial = devices_info[0];
-            info.state = devices_info[1];
-            devices_list.push_back(info);
-        }
-    }
-}
-
-int HostCommand::get_devices(std::vector<DeviceInfo>& ARGS_OUT devices_list) {
+int HostCommand::get_devices(std::string& ARGS_OUT devices_list) {
     std::string_view cmd = STRING_CONCAT("host", ":devices");
     int status = -1;
 
@@ -154,9 +115,9 @@ int HostCommand::get_devices(std::vector<DeviceInfo>& ARGS_OUT devices_list) {
         if (channel->isConnected()) {
             if (buf->size() > 4) {
                 if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                    get_device_info_from_buf(devices_list, std::string((char*)buf->data() + 8));
+                    devices_list.append(std::string((char*)buf->data() + 8));
                 } else {
-                    get_device_info_from_buf(devices_list, std::string((char*)buf->data() + 4));
+                    devices_list.append(std::string((char*)buf->data() + 4));
                 }
                 status = 0;
             } else if (buf->size() == 4) {
@@ -196,7 +157,7 @@ int HostCommand::get_devices(std::vector<DeviceInfo>& ARGS_OUT devices_list) {
     return status;
 }
 
-int HostCommand::get_devices_with_path(std::vector<DeviceInfo>& ARGS_OUT devices_list) {
+int HostCommand::get_devices_with_path(std::string& ARGS_OUT devices_list) {
     std::string_view cmd = STRING_CONCAT("host", ":devices-l");
     int status = -1;
 
@@ -224,11 +185,11 @@ int HostCommand::get_devices_with_path(std::vector<DeviceInfo>& ARGS_OUT devices
                 if (strstr((char*)buf->data(), "OKAY") != NULL) {
                     std::string tmp = std::string((char*)buf->data() + 8);
                     unique_spaces(tmp);
-                    get_device_info_from_buf(devices_list, tmp);
+                    devices_list.append(tmp);
                 } else {
                     std::string tmp = std::string((char*)buf->data() + 4);
                     unique_spaces(tmp);
-                    get_device_info_from_buf(devices_list, tmp);
+                    devices_list.append(tmp);
                 }
                 status = 0;
             } else if (buf->size() == 4) {

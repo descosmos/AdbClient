@@ -74,15 +74,19 @@ TEST(HostCommandTest, BasicAssertions) {
 
     // adb devices
     std::vector<DeviceInfo> devices_list;
-    status = hostCommand.get_devices(devices_list);
+    std::string devices_list_str;
+    status = hostCommand.get_devices(devices_list_str);
+    get_device_info_from_buf(devices_list, devices_list_str);
     ASSERT_NE(status, -1);
-    ASSERT_NE(devices_list.size(), 2);
+    ASSERT_FALSE(devices_list.empty());
 
     // adb devices -l
     std::vector<DeviceInfo> devices_list_l;
-    status = hostCommand.get_devices_with_path(devices_list_l);
+    std::string devices_list_l_str;
+    status = hostCommand.get_devices_with_path(devices_list_l_str);
+    get_device_info_from_buf(devices_list_l, devices_list_l_str);
     ASSERT_NE(status, -1);
-    ASSERT_NE(devices_list.size(), 6);
+    ASSERT_FALSE(devices_list.empty());
 
 #ifdef WIFI_TEST
     // adb connect

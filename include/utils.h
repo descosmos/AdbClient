@@ -2,6 +2,8 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include "DeviceInfo.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -60,5 +62,6 @@ constexpr int DEFAULT_ADB_PORT = 5037;
 
 std::vector<std::string> string_split(const std::string &str, char delimiter);
 void unique_spaces(std::string &str);
+void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list, const std::string& ARGS_IN buf);
 
 #endif  // UTILS_H_

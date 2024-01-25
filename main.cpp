@@ -46,14 +46,19 @@ int execute_host_command() {
     ADB_LOGI("version: %d\n", version);
 
     std::vector<DeviceInfo> devices_list;
-    hostCommand.get_devices(devices_list);
+    std::string devices_list_str;
+    hostCommand.get_devices(devices_list_str);
+    get_device_info_from_buf(devices_list, devices_list_str);
+
     for (const auto& device : devices_list) {
         ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(),
                  device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
     }
 
     devices_list.clear();
-    hostCommand.get_devices_with_path(devices_list);
+    devices_list_str.clear();
+    hostCommand.get_devices_with_path(devices_list_str);
+    get_device_info_from_buf(devices_list, devices_list_str);
     for (const auto& device : devices_list) {
         ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(),
                  device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
