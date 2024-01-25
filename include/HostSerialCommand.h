@@ -17,7 +17,7 @@ class HostSerialCommand : public AdbCommand {
 
     int execute_cmd(std::string_view cmd) override;
     int forward(std::string_view serial, std::string_view local, std::string_view remote, bool norebind = false);
-    int list_forward(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT forward_list);
+    int list_forward(std::string_view ARGS_IN serial, std::string& ARGS_OUT forward_list);
     int kill_forward(std::string_view ARGS_IN serial, std::string_view ARGS_IN local);
     int kill_forward_all(std::string_view ARGS_IN serial);
     int get_device_path(std::string_view ARGS_IN serial, std::string& ARGS_OUT device_path);

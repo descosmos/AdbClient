@@ -91,24 +91,33 @@ int execute_serial_command() {
     hostSerialCommand.forward(serial, "tcp:1345", "tcp:1345");
 
     std::vector<std::string> forward_list;
-    hostSerialCommand.list_forward(serial, forward_list);
+    std::string buf;
+    hostSerialCommand.list_forward(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     for (const auto& forward : forward_list) {
         ADB_LOGI("%s \n", forward.c_str());
     }
+    forward_list.clear();
+    buf.clear();
 
     hostSerialCommand.kill_forward(serial, "tcp:1345");
-    forward_list.clear();
-    hostSerialCommand.list_forward(serial, forward_list);
+    hostSerialCommand.list_forward(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     for (const auto& forward : forward_list) {
         ADB_LOGI("%s \n", forward.c_str());
     }
+    forward_list.clear();
+    buf.clear();
 
     hostSerialCommand.kill_forward_all(serial);
     forward_list.clear();
-    hostSerialCommand.list_forward(serial, forward_list);
+    hostSerialCommand.list_forward(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     for (const auto& forward : forward_list) {
         ADB_LOGI("%s \n", forward.c_str());
     }
+    forward_list.clear();
+    buf.clear();
 
     std::string device_path;
     hostSerialCommand.get_device_path(serial, device_path);
@@ -228,8 +237,8 @@ int execute_local_command() {
 
 int main(int argc, char* argv[]) {
     // execute_host_command();
-    // execute_serial_command();
-    execute_local_command();
+    execute_serial_command();
+    // execute_local_command();
 
     return 0;
 }

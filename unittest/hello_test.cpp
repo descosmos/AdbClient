@@ -110,27 +110,36 @@ TEST(HostSerialCommandTest, BasicAssertions) {
     int connfd = hostSerialCommand.m_tcp_client.createsocket(remote_port, remote_host);
     ASSERT_GE(connfd, 0);
 
+    std::vector<std::string> forward_list;
+    std::string buf;
+    
     // remove all forward
     ASSERT_NE(hostSerialCommand.kill_forward_all(serial), -1);
 
     // adb forward local:port remote:port -s [SERIAL]
     hostSerialCommand.forward(serial, "tcp:1346", "tcp:1346");
     hostSerialCommand.forward(serial, "tcp:1345", "tcp:1345", true);
-    std::vector<std::string> forward_list;
-    hostSerialCommand.list_forward(serial, forward_list);
+    hostSerialCommand.list_forward(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     ASSERT_EQ(forward_list.size(), 2);
+    forward_list.clear();
+    buf.clear();
 
     // adb forward --remove LOCAL -s [SERIAL]
     hostSerialCommand.kill_forward(serial, "tcp:1345");
-    forward_list.clear();
-    hostSerialCommand.list_forward(serial, forward_list);
+    hostSerialCommand.list_forward(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     ASSERT_EQ(forward_list.size(), 1);
+    forward_list.clear();
+    buf.clear();
 
     // adb forward --remove-all -s [SERIAL]
     hostSerialCommand.kill_forward_all(serial);
-    forward_list.clear();
-    hostSerialCommand.list_forward(serial, forward_list);
+    hostSerialCommand.list_forward(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     ASSERT_TRUE(forward_list.empty());
+    forward_list.clear();
+    buf.clear();
 
     // adb get-devpath -s [SERIAL]
     std::string device_path;

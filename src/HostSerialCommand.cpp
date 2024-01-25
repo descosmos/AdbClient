@@ -110,7 +110,7 @@ void get_forward_list_from_buf(std::vector<std::string>& ARGS_OUT forward_list, 
     }
 }
 
-int HostSerialCommand::list_forward(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT forward_list) {
+int HostSerialCommand::list_forward(std::string_view ARGS_IN serial, std::string& ARGS_OUT forward_list) {
     std::string cmd = std::format("host-serial:{0}:list-forward", serial);
     ADB_LOGI("cmd: %s\n", cmd.c_str());
     int status = -1;
@@ -137,9 +137,9 @@ int HostSerialCommand::list_forward(std::string_view ARGS_IN serial, std::vector
         if (channel->isConnected()) {
             if (buf->size() > 4) {
                 if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                    get_forward_list_from_buf(forward_list, std::string((char*)buf->data() + 8));
+                    forward_list.append(std::string((char*)buf->data() + 8));
                 } else {
-                    get_forward_list_from_buf(forward_list, std::string((char*)buf->data() + 4));
+                    forward_list.append(std::string((char*)buf->data() + 4));
                 }
                 status = 0;
             } else if (buf->size() == 4) {
