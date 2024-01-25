@@ -18,17 +18,17 @@ class LocalCommand : public AdbCommand {
     int execute_cmd(std::string_view cmd) override;
     int transport(std::string_view ARGS_IN serial);
     int shell(std::string_view ARGS_IN serial, std::string_view ARGS_IN command,
-              std::vector<std::string>& ARGS_OUT lines /*TODO: handle to for shell*/);  // TODO: fixme
+              std::string& ARGS_OUT data /*TODO: handle to for shell*/);  // TODO: fixme
     int sync(std::string_view ARGS_IN serial);
     int screencap(std::string_view ARGS_IN serial, std::string& ARGS_OUT data);
-    int list_packages(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT lines);
+    int list_packages(std::string_view ARGS_IN serial, std::string& ARGS_OUT packages);
     int tcpip(std::string_view ARGS_IN serial, uint32_t ARGS_IN port);
     int usb(std::string_view ARGS_IN serial);
     int logcat();
-    int get_properties(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT lines);
+    int get_properties(std::string_view ARGS_IN serial, std::string& ARGS_OUT properties);
     int root(std::string_view ARGS_IN serial);
     int reverse(std::string_view serial, std::string_view local, std::string_view remote, bool norebind = false);
-    int list_reverse(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT forward_list);
+    int list_reverse(std::string_view ARGS_IN serial, std::string& ARGS_OUT forward_list);
     int kill_reverse(std::string_view ARGS_IN serial, std::string_view ARGS_IN local);
     int kill_reverse_all(std::string_view ARGS_IN serial);
 };

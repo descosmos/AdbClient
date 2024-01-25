@@ -157,21 +157,28 @@ TEST(LocalCommandTest, BasicAssertions) {
     int connfd = localCommand.m_tcp_client.createsocket(remote_port, remote_host);
     ASSERT_GE(connfd, 0);
     std::vector<std::string> res;
+    std::string buf;
 
     // adb -s [SERIAL] shell getprop ro.build.version.release
-    status = localCommand.shell(serial, "getprop ro.build.version.release", res);
+    status = localCommand.shell(serial, "getprop ro.build.version.release", buf);
+    get_lines_from_buf(res, buf);
     ASSERT_EQ(res.size(), 1);
     res.clear();
+    buf.clear();
 
     // adb -s [SERIAL] shell getprop
-    status = localCommand.get_properties(serial, res);
+    status = localCommand.get_properties(serial, buf);
+    get_lines_from_buf(res, buf);
     ASSERT_FALSE(res.empty());
     res.clear();
+    buf.clear();
 
     // adb -s [SERIAL] shell pm list packages
-    status = localCommand.list_packages(serial, res);
+    status = localCommand.list_packages(serial, buf);
+    get_lines_from_buf(res, buf);
     ASSERT_FALSE(res.empty());
     res.clear();
+    buf.clear();
 
     // adb -s [SERIAL] shell /system/bin/screencap -p
     std::string data;
@@ -195,21 +202,27 @@ TEST(LocalCommandTest, BasicAssertions) {
     localCommand.reverse(serial, "tcp:1247", "tcp:1247");
     localCommand.reverse(serial, "tcp:1248", "tcp:1248");
     localCommand.reverse(serial, "tcp:1249", "tcp:1249", true);
-    localCommand.list_reverse(serial, forward_list);
+    localCommand.list_reverse(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     ASSERT_EQ(forward_list.size(), 3);
     forward_list.clear();
+    buf.clear();
 
     // adb -s [SERIAL] reverse --remove LOCAL 
     localCommand.kill_reverse(serial, "tcp:1248");
-    localCommand.list_reverse(serial, forward_list);
+    localCommand.list_reverse(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     ASSERT_EQ(forward_list.size(), 2);
     forward_list.clear();
+    buf.clear();
 
     // adb -s [SERIAL] reverse --remove-all 
     localCommand.kill_reverse_all(serial);
-    localCommand.list_reverse(serial, forward_list);
+    localCommand.list_reverse(serial, buf);
+    get_lines_from_buf(forward_list, buf);
     ASSERT_TRUE(forward_list.empty());
     forward_list.clear();
+    buf.clear();
 
 #ifdef LOCAL_TCPIP_TEST
     // adb -s [SERIAL] tcpip PORT

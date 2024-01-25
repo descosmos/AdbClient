@@ -85,21 +85,8 @@ int LocalCommand::transport(std::string_view ARGS_IN serial) {
     return status;
 }
 
-void get_lines_from_buf(std::vector<std::string>& ARGS_OUT lines, const std::string& ARGS_IN buf) {
-    std::vector<std::string> lines_tmp = string_split(buf, '\n');
-    lines_tmp.pop_back();  // pop null
-
-#ifdef ADB_DEBUG
-    ADB_LOGI("lines_tmp.size: %d\n", lines_tmp.size());
-#endif
-
-    for (auto& line : lines_tmp) {
-        lines.push_back(line);
-    }
-}
-
 int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_IN command,
-                        std::vector<std::string>& ARGS_OUT lines) {
+                        std::string& ARGS_OUT data) {
     std::string cmd = std::format("shell:{0}", command);
     int status = -1;
 
@@ -137,7 +124,7 @@ int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_I
         } else {
             std::string tmp = std::string((char*)buf->data());
             unique_spaces(tmp);
-            get_lines_from_buf(lines, tmp);
+            data.append(tmp);
         }
 
         memset(buf->data(), 0, buf->size());
@@ -286,9 +273,9 @@ int LocalCommand::screencap(std::string_view ARGS_IN serial, std::string& ARGS_O
     return status;
 }
 
-int LocalCommand::list_packages(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT lines) {
+int LocalCommand::list_packages(std::string_view ARGS_IN serial, std::string& ARGS_OUT packages) {
     std::string_view command = "pm list packages";
-    return shell(serial, command, lines);
+    return shell(serial, command, packages);
 }
 
 int LocalCommand::tcpip(std::string_view ARGS_IN serial, uint32_t ARGS_IN port) {
@@ -415,9 +402,9 @@ int LocalCommand::usb(std::string_view ARGS_IN serial) {
 
 int LocalCommand::logcat() { return 0; }
 
-int LocalCommand::get_properties(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT lines) {
+int LocalCommand::get_properties(std::string_view ARGS_IN serial, std::string& ARGS_OUT properties) {
     std::string_view command = "getprop";
-    return shell(serial, command, lines);
+    return shell(serial, command, properties);
 }
 
 int LocalCommand::root(std::string_view ARGS_IN serial) {
@@ -547,23 +534,7 @@ int LocalCommand::reverse(std::string_view serial, std::string_view local, std::
     return status;
 }
 
-void get_reverse_list_from_buf(std::vector<std::string>& ARGS_OUT forward_list, const std::string& ARGS_IN buf) {
-    std::vector<std::string> forward_list_tmp = string_split(buf, '\n');
-    forward_list_tmp.pop_back();  // pop null
-
-#ifdef ADB_DEBUG
-    ADB_LOGI("forward_list_tmp.size: %d\n", forward_list_tmp.size());
-#endif
-
-    for (auto& forward : forward_list_tmp) {
-#ifdef ADB_DEBUG
-        ADB_LOGI("forward_list_tmp it: %s\n", forward.c_str());
-#endif
-        forward_list.push_back(forward);
-    }
-}
-
-int LocalCommand::list_reverse(std::string_view ARGS_IN serial, std::vector<std::string>& ARGS_OUT forward_list) {
+int LocalCommand::list_reverse(std::string_view ARGS_IN serial, std::string& ARGS_OUT forward_list) {
     std::string_view cmd = "reverse:list-forward";
     int status = -1;
 
@@ -601,9 +572,9 @@ int LocalCommand::list_reverse(std::string_view ARGS_IN serial, std::vector<std:
             }
         } else if (buf->size() > 4) {
             if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                get_reverse_list_from_buf(forward_list, std::string((char*)buf->data() + 8));
+                forward_list.append(std::string((char*)buf->data() + 8));
             } else {
-                get_reverse_list_from_buf(forward_list, std::string((char*)buf->data() + 4));
+                forward_list.append(std::string((char*)buf->data() + 4));
             }
         } else {
             // TODO:

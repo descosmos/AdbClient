@@ -60,3 +60,16 @@ void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list, co
         }
     }
 }
+
+void get_lines_from_buf(std::vector<std::string>& ARGS_OUT lines, const std::string& ARGS_IN buf) {
+    std::vector<std::string> lines_tmp = string_split(buf, '\n');
+    lines_tmp.pop_back();  // pop null
+
+#ifdef ADB_DEBUG
+    ADB_LOGI("lines_tmp.size: %d\n", lines_tmp.size());
+#endif
+
+    for (auto& line : lines_tmp) {
+        lines.push_back(line);
+    }
+}

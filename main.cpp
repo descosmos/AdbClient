@@ -140,21 +140,27 @@ int execute_local_command() {
 
     // localCommand.transport(serial);
 
+    std::string buf;
     std::vector<std::string> lines;
-    localCommand.shell(serial, "getprop ro.build.version.release", lines);
+    localCommand.shell(serial, "getprop ro.build.version.release", buf);
+    get_lines_from_buf(lines, buf);
     // localCommand.shell(serial, "ls /sys/class/thermal/", lines);
     for (const auto& line : lines) {
         ADB_LOGI("%s \n", line.c_str());
     }
 
     lines.clear();
-    localCommand.list_packages(serial, lines);
+    buf.clear();
+    localCommand.list_packages(serial, buf);
+    get_lines_from_buf(lines, buf);
     for (const auto& line : lines) {
         ADB_LOGI("%s \n", line.c_str());
     }
 
     lines.clear();
-    localCommand.get_properties(serial, lines);
+    buf.clear();
+    localCommand.get_properties(serial, buf);
+    get_lines_from_buf(lines, buf);
     for (const auto& line : lines) {
         ADB_LOGI("%s \n", line.c_str());
     }
@@ -178,34 +184,41 @@ int execute_local_command() {
     localCommand.root(serial);
     localCommand.sync(serial);
 
-    std::vector<std::string> forward_list;
+    lines.clear();
+    buf.clear();
 
     localCommand.reverse(serial, "tcp:1247", "tcp:1247");
     localCommand.reverse(serial, "tcp:1248", "tcp:1248");
     localCommand.reverse(serial, "tcp:1249", "tcp:1249", true);
 
-    localCommand.list_reverse(serial, forward_list);
-    ADB_LOGI("forward_list.size: %d\n", forward_list.size());
-    for (const auto& forward : forward_list) {
+    localCommand.list_reverse(serial, buf);
+    get_lines_from_buf(lines, buf);
+    ADB_LOGI("lines.size: %d\n", lines.size());
+    for (const auto& forward : lines) {
         ADB_LOGI("%s \n", forward.c_str());
     }
-    forward_list.clear();
+    lines.clear();
+    buf.clear();
 
     localCommand.kill_reverse(serial, "tcp:1248");
-    localCommand.list_reverse(serial, forward_list);
-    ADB_LOGI("forward_list.size: %d\n", forward_list.size());
-    for (const auto& forward : forward_list) {
+    localCommand.list_reverse(serial, buf);
+    get_lines_from_buf(lines, buf);
+    ADB_LOGI("lines.size: %d\n", lines.size());
+    for (const auto& forward : lines) {
         ADB_LOGI("%s \n", forward.c_str());
     }
-    forward_list.clear();
+    lines.clear();
+    buf.clear();
 
     localCommand.kill_reverse_all(serial);
-    localCommand.list_reverse(serial, forward_list);
-    ADB_LOGI("forward_list.size: %d\n", forward_list.size());
-    for (const auto& forward : forward_list) {
+    localCommand.list_reverse(serial, buf);
+    get_lines_from_buf(lines, buf);
+    ADB_LOGI("lines.size: %d\n", lines.size());
+    for (const auto& forward : lines) {
         ADB_LOGI("%s \n", forward.c_str());
     }
-    forward_list.clear();
+    lines.clear();
+    buf.clear();
 
     localCommand.m_tcp_client.stop();
     localCommand.m_tcp_client.closesocket();

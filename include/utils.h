@@ -63,5 +63,6 @@ constexpr int DEFAULT_ADB_PORT = 5037;
 std::vector<std::string> string_split(const std::string &str, char delimiter);
 void unique_spaces(std::string &str);
 void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list, const std::string& ARGS_IN buf);
+void get_lines_from_buf(std::vector<std::string>& ARGS_OUT lines, const std::string& ARGS_IN buf);
 
 #endif  // UTILS_H_
