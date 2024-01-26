@@ -94,22 +94,6 @@ int HostSerialCommand::forward(std::string_view serial, std::string_view local, 
     return status;
 }
 
-void get_forward_list_from_buf(std::vector<std::string>& ARGS_OUT forward_list, const std::string& ARGS_IN buf) {
-    std::vector<std::string> forward_list_tmp = string_split(buf, '\n');
-    forward_list_tmp.pop_back();  // pop null
-
-#ifdef ADB_DEBUG
-    ADB_LOGI("forward_list_tmp.size: %d\n", forward_list_tmp.size());
-#endif
-
-    for (auto& forward : forward_list_tmp) {
-#ifdef ADB_DEBUG
-        ADB_LOGI("forward_list_tmp it: %s\n", forward.c_str());
-#endif
-        forward_list.push_back(forward);
-    }
-}
-
 int HostSerialCommand::list_forward(std::string_view ARGS_IN serial, std::string& ARGS_OUT forward_list) {
     std::string cmd = std::format("host-serial:{0}:list-forward", serial);
     ADB_LOGI("cmd: %s\n", cmd.c_str());

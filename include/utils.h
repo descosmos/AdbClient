@@ -10,9 +10,9 @@
 #include <string>
 #include <vector>
 
-#ifndef ADB_DEBUG
-// #define ADB_DEBUG
-#endif  // ADB_DEBUG
+#ifndef NDEBUG
+#define ADB_DEBUG
+#endif // NDEBUG
 
 #define DISALLOW_ASSIGN(TypeName)              \
     void operator=(const TypeName &) = delete; \
@@ -46,11 +46,22 @@
 #endif  // ARGS_ATTR
 
 #ifndef ADB_LOG
+
+#ifdef ADB_DEBUG
 #define ADB_LOGI(fmt, ...)                                              \
     do {                                                                \
         printf("%s (%I32d) : " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
         fflush(stdout);                                                 \
     } while (0)
+
+#else 
+#define ADB_LOGI(fmt, ...)                                              \
+    do {} while (0)
+
+#endif // ADB_DEBUG
+
+
+
 
 #endif  // ADB_LOG
 
