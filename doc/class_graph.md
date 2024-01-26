@@ -67,22 +67,22 @@ AdbCommand(class)
                  |---- list_packages(method)
                  |
                  |---- tcpip(method)
-    			 |
+                 |
                  |---- usb(method)
                  |
                  |---- logcat(method)
-    			 |
-    			 |---- get_properties(method)
-    			 |
-     			 |---- root(method)
-    			 |
-     			 |---- reverse(method)
-    			 |
-     			 |---- list_reverse(method)
-    			 |
-     			 |---- kill_reverse(method)
-    			 |
-     			 |---- kill_reverse_all(method)
+                 |
+                 |---- get_properties(method)
+                 |
+                 |---- root(method)
+                 |
+                 |---- reverse(method)
+                 |
+                 |---- list_reverse(method)
+                 |
+                 |---- kill_reverse(method)
+                 |
+                 |---- kill_reverse_all(method)
 |
 |
 
