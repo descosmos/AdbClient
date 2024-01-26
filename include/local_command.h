@@ -14,6 +14,8 @@ class LocalCommand : public AdbCommand {
     void set_client_on_message_callback(std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
     void set_client_on_write_complete_callback(
         std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
+    void defualt_on_connection_callback(const hv::SocketChannelPtr& channel) final;
+    void defualt_on_message_callback(const hv::SocketChannelPtr& channel) final;
 
     int execute_cmd(std::string_view cmd) final;
     int transport(std::string_view ARGS_IN serial);
@@ -31,6 +33,9 @@ class LocalCommand : public AdbCommand {
     int list_reverse(std::string_view ARGS_IN serial, std::string& ARGS_OUT forward_list);
     int kill_reverse(std::string_view ARGS_IN serial, std::string_view ARGS_IN local);
     int kill_reverse_all(std::string_view ARGS_IN serial);
+
+   private:
+    std::string m_serial;
 };
 
 #endif  // LOCAL_COMMAND_H_

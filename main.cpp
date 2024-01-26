@@ -64,9 +64,9 @@ int execute_host_command() {
                  device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
     }
 
-    hostCommand.connect("10.11.234.57", "1314");
+    // hostCommand.connect("10.11.234.57", "1314");
 
-    hostCommand.disconnect("10.11.234.57", "1314");
+    // hostCommand.disconnect("10.11.234.57", "1314");
 
     // hostCommand.track_devices();
 

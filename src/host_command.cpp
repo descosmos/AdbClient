@@ -23,28 +23,32 @@ void HostCommand::set_client_on_write_complete_callback(
     m_tcp_client.onWriteComplete = callback;
 }
 
+void HostCommand::defualt_on_connection_callback(const hv::SocketChannelPtr& channel) {
+    std::string peeraddr = channel->peeraddr();
+    if (channel->isConnected()) {
+        auto str = android::base::StringPrintf("%04x", m_command.length()).append(m_command);
+        channel->write(str);
+        ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+    } else {
+        ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
+        weak_up();
+    }
+    if (m_tcp_client.isReconnect()) {
+        ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
+                 m_tcp_client.reconn_setting->cur_delay);
+    }
+}
+
+void HostCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) {/*TODO: fixme*/}
+
 int HostCommand::execute_cmd(std::string_view cmd) { return 0; }
 
 int HostCommand::get_version(int& ARGS_OUT version) {
-    std::string_view cmd = STRING_CONCAT("host", ":version");
+    m_command = STRING_CONCAT("host", ":version");
     int status = -1;
 
-    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-            weak_up();
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(connection_callback);
+    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
@@ -90,25 +94,11 @@ int HostCommand::get_version(int& ARGS_OUT version) {
 }
 
 int HostCommand::get_devices(std::string& ARGS_OUT devices_list) {
-    std::string_view cmd = STRING_CONCAT("host", ":devices");
+    m_command = STRING_CONCAT("host", ":devices");
     int status = -1;
 
-    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-            weak_up();
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(connection_callback);
+    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
@@ -158,25 +148,11 @@ int HostCommand::get_devices(std::string& ARGS_OUT devices_list) {
 }
 
 int HostCommand::get_devices_with_path(std::string& ARGS_OUT devices_list) {
-    std::string_view cmd = STRING_CONCAT("host", ":devices-l");
+    m_command = STRING_CONCAT("host", ":devices-l");
     int status = -1;
 
-    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-            weak_up();
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(connection_callback);
+    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
@@ -230,25 +206,11 @@ int HostCommand::get_devices_with_path(std::string& ARGS_OUT devices_list) {
 }
 
 int HostCommand::kill() {
-    std::string_view cmd = STRING_CONCAT("host", ":kill");
+    m_command = STRING_CONCAT("host", ":kill");
     int status = -1;
 
-    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-            weak_up();
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(connection_callback);
+    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
@@ -291,26 +253,11 @@ int HostCommand::kill() {
 }
 
 int HostCommand::track_devices() {
-    std::string cmd = STRING_CONCAT("host", ":track-devices");
-
+    m_command = STRING_CONCAT("host", ":track-devices");
     int status = -1;
 
-    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-            weak_up();
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(connection_callback);
+    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
@@ -358,26 +305,11 @@ int HostCommand::track_devices() {
 }
 
 int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN port) {
-    std::string cmd = std::format("host:connect:{0}:{1}", host, port);
-
+    m_command = std::format("host:connect:{0}:{1}", host, port);
     int status = -1;
 
-    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-            weak_up();
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(connection_callback);
+    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
@@ -422,26 +354,11 @@ int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN
 }
 
 int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS_IN port) {
-    std::string cmd = std::format("host:disconnect:{0}:{1}", host, port);
-
+    m_command = std::format("host:disconnect:{0}:{1}", host, port);
     int status = -1;
 
-    auto connection_callback = [&](const hv::SocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", cmd.length()).append(cmd);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-            weak_up();
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(connection_callback);
+    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
