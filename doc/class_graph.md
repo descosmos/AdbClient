@@ -68,7 +68,7 @@ AdbCommand(class)
                  |
                  |---- tcpip(method)
     			 |
-    			 |---- usb(method)
+                 |---- usb(method)
                  |
                  |---- logcat(method)
     			 |
