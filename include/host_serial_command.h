@@ -10,12 +10,12 @@ class HostSerialCommand : public AdbCommand {
     HostSerialCommand();
     ~HostSerialCommand();
 
-    void set_client_on_connection_callback(std::function<void(const TSocketChannelPtr&)> callback) override;
-    void set_client_on_message_callback(std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) override;
+    void set_client_on_connection_callback(std::function<void(const TSocketChannelPtr&)> callback) final;
+    void set_client_on_message_callback(std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
     void set_client_on_write_complete_callback(
-        std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) override;
+        std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
 
-    int execute_cmd(std::string_view cmd) override;
+    int execute_cmd(std::string_view cmd) final;
     int forward(std::string_view serial, std::string_view local, std::string_view remote, bool norebind = false);
     int list_forward(std::string_view ARGS_IN serial, std::string& ARGS_OUT forward_list);
     int kill_forward(std::string_view ARGS_IN serial, std::string_view ARGS_IN local);

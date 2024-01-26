@@ -13,12 +13,12 @@ class HostCommand : public AdbCommand {
     HostCommand();
     ~HostCommand();
 
-    void set_client_on_connection_callback(std::function<void(const TSocketChannelPtr&)> callback) override;
-    void set_client_on_message_callback(std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) override;
+    void set_client_on_connection_callback(std::function<void(const TSocketChannelPtr&)> callback) final;
+    void set_client_on_message_callback(std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
     void set_client_on_write_complete_callback(
-        std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) override;
+        std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
 
-    int execute_cmd(std::string_view cmd) override;
+    int execute_cmd(std::string_view cmd) final;
     int get_version(int& ARGS_OUT version);
     int get_devices(std::string& ARGS_OUT devices_list);
     int get_devices_with_path(std::string& ARGS_OUT devices_list);
