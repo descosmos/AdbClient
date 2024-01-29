@@ -60,18 +60,7 @@ int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_I
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
+        if (respond_transport_command(channel, buf, cmd) != -1) {
             std::string tmp = std::string((char*)buf->data());
             unique_spaces(tmp);
             data.append(tmp);
@@ -111,31 +100,12 @@ int LocalCommand::sync(std::string_view ARGS_IN serial) {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
-            // TODO:
-        }
-
+        status = respond_transport_command(channel, buf, cmd);
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -179,12 +149,7 @@ int LocalCommand::screencap(std::string_view ARGS_IN serial, std::string& ARGS_O
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -213,31 +178,12 @@ int LocalCommand::tcpip(std::string_view ARGS_IN serial, uint32_t ARGS_IN port) 
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
-            // TODO:
-        }
-
+        status = respond_transport_command(channel, buf, cmd);
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -261,31 +207,12 @@ int LocalCommand::usb(std::string_view ARGS_IN serial) {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
-            // TODO:
-        }
-
+        status = respond_transport_command(channel, buf, cmd);
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -316,31 +243,12 @@ int LocalCommand::root(std::string_view ARGS_IN serial) {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
-            // TODO:
-        }
-
+        status = respond_transport_command(channel, buf, cmd);
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -369,31 +277,12 @@ int LocalCommand::reverse(std::string_view serial, std::string_view local, std::
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
-            // TODO:
-        }
-
+        status = respond_transport_command(channel, buf, cmd);
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -417,38 +306,20 @@ int LocalCommand::list_reverse(std::string_view ARGS_IN serial, std::string& ARG
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL") == 0) {
-                status = -1;
-            } else {
-                status = 0;
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else if (buf->size() > 4) {
+        status = respond_transport_command(channel, buf, cmd);
+        if (status != -1) {
             if (strstr((char*)buf->data(), "OKAY") != NULL) {
                 forward_list.append(std::string((char*)buf->data() + 8));
             } else {
                 forward_list.append(std::string((char*)buf->data() + 4));
             }
-        } else {
-            // TODO:
         }
 
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -472,21 +343,7 @@ int LocalCommand::kill_reverse(std::string_view ARGS_IN serial, std::string_view
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
-            // TODO:
-        }
-
+        status = respond_transport_command(channel, buf, cmd);
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
@@ -520,31 +377,12 @@ int LocalCommand::kill_reverse_all(std::string_view ARGS_IN serial) {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                auto str = android::base::StringPrintf("%04x", cmd.size()).append(cmd);
-                channel->write(str);
-                status = 0;
-            } else if (strcmp((char*)buf->data(), "FAIL")) {
-                status = -1;
-            } else {
-                // TODO: handle others ID
-                // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/adb/file_sync_protocol.h?q=%22OKAY%22&ss=android%2Fplatform%2Fsuperproject%2Fmain
-            }
-        } else {
-            // TODO:
-        }
-
+        status = respond_transport_command(channel, buf, cmd);
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 

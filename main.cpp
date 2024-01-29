@@ -239,9 +239,9 @@ int execute_local_command() {
 }
 
 int main(int argc, char* argv[]) {
-    execute_host_command();
+    // execute_host_command();
     // execute_serial_command();
-    // execute_local_command();
+    execute_local_command();
     // ADB_LOGI("ID_OKAY: %x\n", ID_OKAY);
 
     return 0;
