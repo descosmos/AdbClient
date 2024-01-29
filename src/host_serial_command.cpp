@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "android/stringprintf.h"
+#include "protocol.h"
 
 using namespace std::chrono_literals;
 
@@ -38,6 +39,8 @@ void HostSerialCommand::defualt_on_connection_callback(const hv::SocketChannelPt
 
 void HostSerialCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) {/*TODO: fixme*/}
 
+std::string HostSerialCommand::error_message() { return m_error; }
+
 int HostSerialCommand::execute_cmd(std::string_view cmd) { return 0; }
 
 HostSerialCommand::HostSerialCommand() {}
@@ -60,32 +63,14 @@ int HostSerialCommand::forward(std::string_view serial, std::string_view local, 
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        std::string data;
+        status = read_protocol_string(buf, data, m_error);
 
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -108,39 +93,13 @@ int HostSerialCommand::list_forward(std::string_view ARGS_IN serial, std::string
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (channel->isConnected()) {
-            if (buf->size() > 4) {
-                if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                    forward_list.append(std::string((char*)buf->data() + 8));
-                } else {
-                    forward_list.append(std::string((char*)buf->data() + 4));
-                }
-                status = 0;
-            } else if (buf->size() == 4) {
-                if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                    // channel->write("host:devices");
-                } else {
-                    status = -1;
-                }
-            } else {
-                // TODO: buf-size < 4
-            }
-        } else {
-            ADB_LOGI("disconnect.\n");
-        }
+        status = read_protocol_string(buf, forward_list, m_error);
+
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
-    if (!m_tcp_client.isConnected()) {
-        m_tcp_client.startConnect();
-    }
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -163,32 +122,14 @@ int HostSerialCommand::kill_forward(std::string_view ARGS_IN serial, std::string
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        std::string data;
+        status = read_protocol_string(buf, data, m_error);
 
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -211,32 +152,14 @@ int HostSerialCommand::kill_forward_all(std::string_view ARGS_IN serial) {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        std::string data;
+        status = read_protocol_string(buf, data, m_error);
 
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -259,35 +182,13 @@ int HostSerialCommand::get_device_path(std::string_view ARGS_IN serial, std::str
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                std::string data = (char*)buf->data() + 8;
-                device_path = data;
-            } else {
-                std::string data = (char*)buf->data() + 4;
-                device_path = data;
-            }
-            status = 0;
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                // channel->write("host:devices");
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        status = read_protocol_string(buf, device_path, m_error);
 
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -310,24 +211,7 @@ int HostSerialCommand::get_serial_no(std::string_view ARGS_IN serial, std::strin
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                std::string data = (char*)buf->data() + 8;
-                serial_no = data;
-            } else {
-                std::string data = (char*)buf->data() + 4;
-                serial_no = data;
-            }
-            status = 0;
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                // channel->write("host:devices");
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        status = read_protocol_string(buf, serial_no, m_error);
 
         memset(buf->data(), 0, buf->size());
     };
@@ -361,24 +245,7 @@ int HostSerialCommand::get_state(std::string_view ARGS_IN serial, std::string& A
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                std::string data = (char*)buf->data() + 8;
-                state = data;
-            } else {
-                std::string data = (char*)buf->data() + 4;
-                state = data;
-            }
-            status = 0;
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                // channel->write("host:devices");
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        status = read_protocol_string(buf, state, m_error);
 
         memset(buf->data(), 0, buf->size());
     };

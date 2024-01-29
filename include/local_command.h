@@ -16,6 +16,7 @@ class LocalCommand : public AdbCommand {
         std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
     void defualt_on_connection_callback(const hv::SocketChannelPtr& channel) final;
     void defualt_on_message_callback(const hv::SocketChannelPtr& channel) final;
+    std::string error_message() final;
 
     int execute_cmd(std::string_view cmd) final;
     int transport(std::string_view ARGS_IN serial);

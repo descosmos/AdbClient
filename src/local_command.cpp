@@ -40,7 +40,10 @@ void LocalCommand::defualt_on_connection_callback(const hv::SocketChannelPtr& ch
     }
 }
 
-void LocalCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) {/*TODO: fixme*/}
+void LocalCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) { /*TODO: fixme*/
+}
+
+std::string LocalCommand::error_message() { return m_error; }
 
 int LocalCommand::execute_cmd(std::string_view cmd) { return 0; }
 

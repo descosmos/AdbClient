@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "android/stringprintf.h"
+#include "protocol.h"
 
 using namespace std::chrono_literals;
 
@@ -41,6 +42,8 @@ void HostCommand::defualt_on_connection_callback(const hv::SocketChannelPtr& cha
 
 void HostCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) {/*TODO: fixme*/}
 
+std::string HostCommand::error_message() { return m_error; }
+
 int HostCommand::execute_cmd(std::string_view cmd) { return 0; }
 
 int HostCommand::get_version(int& ARGS_OUT version) {
@@ -52,23 +55,10 @@ int HostCommand::get_version(int& ARGS_OUT version) {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                std::string data = (char*)buf->data() + 8;
-                version = std::stoi(data, nullptr, 16);
-            } else {
-                std::string data = (char*)buf->data() + 4;
-                version = std::stoi(data, nullptr, 16);
-            }
-            status = 0;
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                // channel->write("host:devices");
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
+        std::string data;
+        status = read_protocol_string(buf, data, m_error);
+        if (status != -1) {
+            version = std::stoi(data, nullptr, 16);
         }
 
         memset(buf->data(), 0, buf->size());
@@ -95,33 +85,15 @@ int HostCommand::get_version(int& ARGS_OUT version) {
 
 int HostCommand::get_devices(std::string& ARGS_OUT devices_list) {
     m_command = STRING_CONCAT("host", ":devices");
-    int status = -1;
+    int status = 0;
 
     std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (channel->isConnected()) {
-            if (buf->size() > 4) {
-                if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                    devices_list.append(std::string((char*)buf->data() + 8));
-                } else {
-                    devices_list.append(std::string((char*)buf->data() + 4));
-                }
-                status = 0;
-            } else if (buf->size() == 4) {
-                if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                    // channel->write("host:devices");
-                } else {
-                    status = -1;
-                }
-            } else {
-                // TODO: buf-size < 4
-            }
-        } else {
-            ADB_LOGI("disconnect.\n");
-        }
+        status = read_protocol_string(buf, devices_list, m_error);
+
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
@@ -156,30 +128,11 @@ int HostCommand::get_devices_with_path(std::string& ARGS_OUT devices_list) {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (channel->isConnected()) {
-            if (buf->size() > 4) {
-                if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                    std::string tmp = std::string((char*)buf->data() + 8);
-                    unique_spaces(tmp);
-                    devices_list.append(tmp);
-                } else {
-                    std::string tmp = std::string((char*)buf->data() + 4);
-                    unique_spaces(tmp);
-                    devices_list.append(tmp);
-                }
-                status = 0;
-            } else if (buf->size() == 4) {
-                if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                    // channel->write("host:devices");
-                } else {
-                    status = -1;
-                }
-            } else {
-                // TODO: buf-size < 4
-            }
-        } else {
-            ADB_LOGI("disconnect.\n");
+        status = read_protocol_string(buf, devices_list, m_error);
+        if (status != -1) {
+            unique_spaces(devices_list);
         }
+
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
@@ -214,21 +167,8 @@ int HostCommand::kill() {
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        std::string data;
+        status = read_protocol_string(buf, data, m_error);
 
         memset(buf->data(), 0, buf->size());
     };
@@ -313,23 +253,8 @@ int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                status = 0;
-            } else if (strstr((char*)buf->data(), "connected")) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        std::string data;
+        status = read_protocol_string(buf, data, m_error);
 
         memset(buf->data(), 0, buf->size());
     };
@@ -362,23 +287,8 @@ int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (buf->size() > 4) {
-            if (strstr((char*)buf->data(), "OKAY") != NULL) {
-                status = 0;
-            } else if (strstr((char*)buf->data(), "disconnected")) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else if (buf->size() == 4) {
-            if (strcmp((char*)buf->data(), "OKAY") == 0) {
-                status = 0;
-            } else {
-                status = -1;
-            }
-        } else {
-            // TODO: buf-size < 4
-        }
+        std::string data;
+        status = read_protocol_string(buf, data, m_error);
 
         memset(buf->data(), 0, buf->size());
     };

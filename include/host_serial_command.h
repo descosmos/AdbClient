@@ -16,6 +16,7 @@ class HostSerialCommand : public AdbCommand {
         std::function<void(const TSocketChannelPtr&, hv::Buffer*)> callback) final;
     void defualt_on_connection_callback(const hv::SocketChannelPtr& channel) final;
     void defualt_on_message_callback(const hv::SocketChannelPtr& channel) final;
+    std::string error_message() final;
 
     int execute_cmd(std::string_view cmd) final;
     int forward(std::string_view serial, std::string_view local, std::string_view remote, bool norebind = false);

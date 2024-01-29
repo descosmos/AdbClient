@@ -9,6 +9,7 @@
 #include "htime.h"
 #include "libhv_evpp/TcpClient.h"
 #include "utils.h"
+#include "protocol.h"
 
 #define TEST_RECONNECT 0
 #define TEST_TLS 0
@@ -46,8 +47,9 @@ int execute_host_command() {
     ADB_LOGI("version: %d\n", version);
 
     std::vector<DeviceInfo> devices_list;
-    std::string devices_list_str;
+    std::string devices_list_str = "";
     hostCommand.get_devices(devices_list_str);
+    ADB_LOGI("devices_list_str: %s\n", devices_list_str.c_str());
     get_device_info_from_buf(devices_list, devices_list_str);
 
     for (const auto& device : devices_list) {
@@ -64,9 +66,10 @@ int execute_host_command() {
                  device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
     }
 
-    // hostCommand.connect("10.11.234.57", "1314");
+    // hostCommand.connect("10.11.252.57", "1314");
 
-    // hostCommand.disconnect("10.11.234.57", "1314");
+    // hostCommand.disconnect("10.11.252.57", "1314");
+    // ADB_LOGE("Error: %s\n", hostCommand.error_message().c_str());
 
     // hostCommand.track_devices();
 
@@ -236,9 +239,10 @@ int execute_local_command() {
 }
 
 int main(int argc, char* argv[]) {
-    // execute_host_command();
-    execute_serial_command();
+    execute_host_command();
+    // execute_serial_command();
     // execute_local_command();
+    // ADB_LOGI("ID_OKAY: %x\n", ID_OKAY);
 
     return 0;
 }

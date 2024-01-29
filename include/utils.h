@@ -47,6 +47,13 @@
 
 #ifndef ADB_LOG
 
+#define ADB_LOGE(fmt, ...)                                              \
+    do {                                                                \
+        fprintf(stderr, "%s (%I32d) : " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
+        fflush(stderr);                                                 \
+    } while (0)
+
+
 #ifdef ADB_DEBUG
 #define ADB_LOGI(fmt, ...)                                              \
     do {                                                                \
