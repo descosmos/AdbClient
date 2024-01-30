@@ -37,7 +37,8 @@ void HostSerialCommand::defualt_on_connection_callback(const hv::SocketChannelPt
     }
 }
 
-void HostSerialCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) {/*TODO: fixme*/}
+void HostSerialCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) { /*TODO: fixme*/
+}
 
 std::string HostSerialCommand::error_message() { return m_error; }
 
@@ -217,12 +218,7 @@ int HostSerialCommand::get_serial_no(std::string_view ARGS_IN serial, std::strin
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -251,12 +247,7 @@ int HostSerialCommand::get_state(std::string_view ARGS_IN serial, std::string& A
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 

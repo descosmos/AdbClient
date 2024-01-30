@@ -40,7 +40,8 @@ void HostCommand::defualt_on_connection_callback(const hv::SocketChannelPtr& cha
     }
 }
 
-void HostCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) {/*TODO: fixme*/}
+void HostCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) { /*TODO: fixme*/
+}
 
 std::string HostCommand::error_message() { return m_error; }
 
@@ -50,7 +51,8 @@ int HostCommand::get_version(int& ARGS_OUT version) {
     m_command = STRING_CONCAT("host", ":version");
     int status = -1;
 
-    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
@@ -65,12 +67,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -87,7 +84,8 @@ int HostCommand::get_devices(std::string& ARGS_OUT devices_list) {
     m_command = STRING_CONCAT("host", ":devices");
     int status = 0;
 
-    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
@@ -98,15 +96,7 @@ int HostCommand::get_devices(std::string& ARGS_OUT devices_list) {
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
-    if (!m_tcp_client.isConnected()) {
-        m_tcp_client.startConnect();
-    }
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -123,7 +113,8 @@ int HostCommand::get_devices_with_path(std::string& ARGS_OUT devices_list) {
     m_command = STRING_CONCAT("host", ":devices-l");
     int status = -1;
 
-    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
@@ -137,15 +128,7 @@ int HostCommand::get_devices_with_path(std::string& ARGS_OUT devices_list) {
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
-    if (!m_tcp_client.isConnected()) {
-        m_tcp_client.startConnect();
-    }
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -162,7 +145,8 @@ int HostCommand::kill() {
     m_command = STRING_CONCAT("host", ":kill");
     int status = -1;
 
-    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
@@ -174,12 +158,7 @@ int HostCommand::kill() {
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -196,7 +175,8 @@ int HostCommand::track_devices() {
     m_command = STRING_CONCAT("host", ":track-devices");
     int status = -1;
 
-    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
@@ -223,12 +203,7 @@ int HostCommand::track_devices() {
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -248,7 +223,8 @@ int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN
     m_command = std::format("host:connect:{0}:{1}", host, port);
     int status = -1;
 
-    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
@@ -260,12 +236,7 @@ int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -282,7 +253,8 @@ int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS
     m_command = std::format("host:disconnect:{0}:{1}", host, port);
     int status = -1;
 
-    std::function<void(const TSocketChannelPtr&)> func = std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
     set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
@@ -294,12 +266,7 @@ int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 

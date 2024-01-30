@@ -40,8 +40,7 @@ void LocalCommand::defualt_on_connection_callback(const hv::SocketChannelPtr& ch
     }
 }
 
-void LocalCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) { /*TODO: fixme*/
-}
+void LocalCommand::defualt_on_message_callback(const hv::SocketChannelPtr& channel) { /*TODO: fixme*/ }
 
 std::string LocalCommand::error_message() { return m_error; }
 
@@ -348,12 +347,7 @@ int LocalCommand::kill_reverse(std::string_view ARGS_IN serial, std::string_view
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
