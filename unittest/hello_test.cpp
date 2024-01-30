@@ -88,6 +88,14 @@ TEST(HostCommandTest, BasicAssertions) {
     ASSERT_NE(status, -1);
     ASSERT_FALSE(devices_list.empty());
 
+    // adb track-devices
+    std::string device_status;
+    status = hostCommand.track_devices();
+    hostCommand.waits();
+    device_status = hostCommand.get_tracked_devices();
+    ASSERT_NE(status, -1);
+    ASSERT_FALSE(device_status.empty());
+
 #ifdef WIFI_TEST
     // adb connect
     status = hostCommand.connect("10.11.234.57", "1314");

@@ -2,17 +2,21 @@
 
 #include <iostream>
 
+#include "android/stringprintf.h"
 #include "host_command.h"
 #include "host_serial_command.h"
-#include "local_command.h"
-#include "android/stringprintf.h"
 #include "htime.h"
 #include "libhv_evpp/TcpClient.h"
-#include "utils.h"
+#include "local_command.h"
 #include "protocol.h"
+#include "utils.h"
 
 #define TEST_RECONNECT 0
 #define TEST_TLS 0
+
+#ifndef TRACK_LOOP
+// #define TRACK_LOOP  // enable if you want to track devices consecutively.
+#endif // TRACK_LOOP
 
 using namespace hv;
 
@@ -21,6 +25,7 @@ const char* remote_host = "127.0.0.1";
 std::string_view serial = "d17cdac6";
 
 int execute_host_command() {
+    int status = 0;
     HostCommand hostCommand;
     int connfd = hostCommand.m_tcp_client.createsocket(remote_port, remote_host);
     if (connfd < 0) {
@@ -71,7 +76,20 @@ int execute_host_command() {
     // hostCommand.disconnect("10.11.252.57", "1314");
     // ADB_LOGE("Error: %s\n", hostCommand.error_message().c_str());
 
-    // hostCommand.track_devices();
+    status = hostCommand.track_devices();
+#ifdef TRACK_LOOP
+    while (true) {
+        hostCommand.waits();
+        std::string device_status = hostCommand.get_tracked_devices();
+        ADB_LOGI("device_status: %s\n", device_status.c_str());
+        hostCommand.restart();
+    }
+#else
+    hostCommand.waits();
+    std::string device_status = hostCommand.get_tracked_devices();
+    ADB_LOGI("device_status: %s\n", device_status.c_str());
+    ADB_LOGI("status: %d\n", status);
+#endif
 
     // hostCommand.kill();
 
@@ -239,9 +257,9 @@ int execute_local_command() {
 }
 
 int main(int argc, char* argv[]) {
-    // execute_host_command();
+    execute_host_command();
     // execute_serial_command();
-    execute_local_command();
+    // execute_local_command();
     // ADB_LOGI("ID_OKAY: %x\n", ID_OKAY);
 
     return 0;

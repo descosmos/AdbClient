@@ -37,6 +37,8 @@ class AdbCommand {
 
     void waits();
     void weak_up();
+    void start();
+    void restart();
 
    protected:
     std::string m_command;

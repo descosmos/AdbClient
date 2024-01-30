@@ -16,3 +16,13 @@ void AdbCommand::weak_up() {
     }
     m_cv.notify_all();
 }
+
+void AdbCommand::start() {
+    m_command_finished = 0;
+    m_tcp_client.startConnect();
+    m_tcp_client.start();
+}
+
+void AdbCommand::restart() {
+    m_command_finished = 0;
+}

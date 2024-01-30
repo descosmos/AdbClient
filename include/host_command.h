@@ -28,10 +28,12 @@ class HostCommand : public AdbCommand {
     int kill();
     int connect(std::string_view ARGS_IN host, std::string_view ARGS_IN port);
     int disconnect(std::string_view ARGS_IN host, std::string_view ARGS_IN port);
-    
-    // TODO: fixme
     int track_devices();
 
+    std::string get_tracked_devices();
+
+   private:
+    std::string m_tracked_device;
 };
 
 #endif  // HOST_COMMAND_H_
