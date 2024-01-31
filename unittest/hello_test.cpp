@@ -30,6 +30,10 @@
 // #define LOCAL_TCPIP_TEST  // adb -s tcpip
 #endif // LOCAL_TCPIP_TEST
 
+#ifndef LOCAL_LOGCAT_TEST
+// #define LOCAL_LOGCAT_TEST   // adb shell logcat
+#endif // LOCAL_LOGCAT_TEST
+
 using namespace hv;
 
 typedef std::vector<std::string> vec_str;
@@ -184,7 +188,8 @@ TEST(LocalCommandTest, BasicAssertions) {
     std::string buf;
 
     // adb -s [SERIAL] shell getprop ro.build.version.release
-    status = localCommand.shell(serial, "getprop ro.build.version.release", buf);
+    status = localCommand.shell(serial, "getprop ro.build.version.release");
+    buf = localCommand.get_shell_data();
     get_lines_from_buf(res, buf);
     ASSERT_EQ(res.size(), 1);
     res.clear();
@@ -259,6 +264,13 @@ TEST(LocalCommandTest, BasicAssertions) {
     status = localCommand.usb(serial);
     ASSERT_EQ(status, 0);
 #endif // LOCAL_USB_TEST
+
+#ifdef LOCAL_LOGCAT_TEST
+    localCommand.logcat(serial);
+    buf = localCommand.get_shell_data();
+    ASSERT_EQ(status, 0);
+    ASSERT_FALSE(buf.empty());
+#endif // LOCAL_LOGCAT_TEST
 
     localCommand.m_tcp_client.stop();
     localCommand.m_tcp_client.closesocket();

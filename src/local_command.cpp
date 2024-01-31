@@ -48,8 +48,8 @@ int LocalCommand::execute_cmd(std::string_view cmd) { return 0; }
 
 int LocalCommand::transport(std::string_view ARGS_IN serial) { return -1; /* Remove it temporarily */ }
 
-int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_IN command, std::string& ARGS_OUT data) {
-    int status = -1;
+int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_IN command) {
+    int status = 0;
     std::string cmd = std::format("shell:{0}", command);
     m_command = std::format("host:transport:{0}", serial);
 
@@ -59,22 +59,16 @@ int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_I
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
-        if (respond_transport_command(channel, buf, cmd) != -1) {
-            std::string tmp = std::string((char*)buf->data());
-            unique_spaces(tmp);
-            data.append(tmp);
+        status = respond_transport_command(channel, buf, cmd);
+        if (status != -1 && strncmp((char*)buf->data(), "OKAY", 4) != 0) {
+            m_shell_data = std::string((char*)buf->data());
         }
 
         memset(buf->data(), 0, buf->size());
     };
     set_client_on_message_callback(message_callback);
 
-    // auto write_complete_callback = [&](const hv::SocketChannelPtr& channel,
-    // hv::Buffer* buf) {};
-    // set_client_on_write_complete_callback(write_complete_callback);
-
     m_command_finished = 0;
-
     m_tcp_client.startConnect();
     m_tcp_client.start();
 
@@ -163,7 +157,9 @@ int LocalCommand::screencap(std::string_view ARGS_IN serial, std::string& ARGS_O
 
 int LocalCommand::list_packages(std::string_view ARGS_IN serial, std::string& ARGS_OUT packages) {
     std::string_view command = "pm list packages";
-    return shell(serial, command, packages);
+    int status = shell(serial, command);
+    packages = m_shell_data;
+    return status;
 }
 
 int LocalCommand::tcpip(std::string_view ARGS_IN serial, uint32_t ARGS_IN port) {
@@ -224,11 +220,17 @@ int LocalCommand::usb(std::string_view ARGS_IN serial) {
     return status;
 }
 
-int LocalCommand::logcat() { return 0; }
+int LocalCommand::logcat(std::string_view serial) {
+    std::string_view command = "logcat";
+    int status = shell(serial, command);
+    return status;
+}
 
 int LocalCommand::get_properties(std::string_view ARGS_IN serial, std::string& ARGS_OUT properties) {
     std::string_view command = "getprop";
-    return shell(serial, command, properties);
+    int status = shell(serial, command);
+    properties = m_shell_data;
+    return status;
 }
 
 int LocalCommand::root(std::string_view ARGS_IN serial) {
@@ -388,3 +390,5 @@ int LocalCommand::kill_reverse_all(std::string_view ARGS_IN serial) {
 
     return status;
 }
+
+std::string LocalCommand::get_shell_data() { return m_shell_data; }

@@ -18,6 +18,10 @@
 // #define TRACK_LOOP  // enable if you want to track devices consecutively.
 #endif // TRACK_LOOP
 
+#ifndef SHELL_LOOP
+// #define SHELL_LOOP  // enable if you want to execute consecutive commands such as "adb shell logcat"
+#endif // SHELL_LOOP
+
 using namespace hv;
 
 int remote_port = 5037;
@@ -172,12 +176,30 @@ int execute_local_command() {
 
     std::string buf;
     std::vector<std::string> lines;
-    localCommand.shell(serial, "getprop ro.build.version.release", buf);
+#ifdef SHELL_LOOP
+    localCommand.shell(serial, "logcat", true);
+    while (true) {
+        localCommand.waits();
+        std::string consecutive_data = localCommand.get_shell_data();
+        ADB_LOGI("consecutive_data: %s\n", consecutive_data.c_str());
+        localCommand.resume();
+    }
+#else 
+    localCommand.shell(serial, "getprop ro.build.version.release");
+    // localCommand.shell(serial, "ls /sys/class/thermal/", buf);
+    buf = localCommand.get_shell_data();
     get_lines_from_buf(lines, buf);
-    // localCommand.shell(serial, "ls /sys/class/thermal/", lines);
     for (const auto& line : lines) {
         ADB_LOGI("%s \n", line.c_str());
     }
+
+    // localCommand.logcat(serial);
+    // buf = localCommand.get_shell_data();
+    // for (const auto& line : lines) {
+    //     ADB_LOGI("%s \n", line.c_str());
+    // }
+
+#endif // SHELL_LOOP
 
     lines.clear();
     buf.clear();
@@ -201,7 +223,6 @@ int execute_local_command() {
     FILE* file = fopen("screencap.png", "wb+");  // 以二进制写入模式打开文件
     if (file != nullptr) {
         fwrite(data.c_str(), sizeof(char), data.size(), file);  // 写入二进制数据
-
         fclose(file);  // 关闭文件
         ADB_LOGI("Binary data has been written to file.\n");
     } else {
@@ -257,9 +278,9 @@ int execute_local_command() {
 }
 
 int main(int argc, char* argv[]) {
-    execute_host_command();
+    // execute_host_command();
     // execute_serial_command();
-    // execute_local_command();
+    execute_local_command();
     // ADB_LOGI("ID_OKAY: %x\n", ID_OKAY);
 
     return 0;
