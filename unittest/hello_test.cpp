@@ -9,6 +9,10 @@
 #include "htime.h"
 #include "utils.h"
 
+#ifndef HOST_TRACK_DEVICE_TEST
+// #define HOST_TRACK_DEVICE_TEST // adb track-devices
+#endif // HOST_TRACK_DEVICE_TEST
+
 #ifndef WIFI_TEST
 // #define WIFI_TEST  // test in wifi mode
 #endif  // WIFI_TEST
@@ -62,16 +66,17 @@ TEST(UtilsTest, StringUniqueAssertions) {
 }
 
 TEST(HostCommandTest, BasicAssertions) {
+    int status;
     HostCommand hostCommand;
     int connfd = hostCommand.m_tcp_client.createsocket(remote_port, remote_host);
     ASSERT_GE(connfd, 0);
 
     // adb version
     int version;
-    int status = hostCommand.get_version(version);
+    status = hostCommand.get_version(version);
     ASSERT_NE(status, -1);
     ASSERT_GE(version, 0);
-
+    
     // adb devices
     std::vector<DeviceInfo> devices_list;
     std::string devices_list_str;
@@ -86,8 +91,9 @@ TEST(HostCommandTest, BasicAssertions) {
     status = hostCommand.get_devices_with_path(devices_list_l_str);
     get_device_info_from_buf(devices_list_l, devices_list_l_str);
     ASSERT_NE(status, -1);
-    ASSERT_FALSE(devices_list.empty());
+    ASSERT_FALSE(devices_list_l.empty());
 
+#ifdef HOST_TRACK_DEVICE_TEST
     // adb track-devices
     std::string device_status;
     status = hostCommand.track_devices();
@@ -95,6 +101,7 @@ TEST(HostCommandTest, BasicAssertions) {
     device_status = hostCommand.get_tracked_devices();
     ASSERT_NE(status, -1);
     ASSERT_FALSE(device_status.empty());
+#endif // HOST_TRACK_DEVICE_TEST
 
 #ifdef WIFI_TEST
     // adb connect

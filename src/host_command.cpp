@@ -59,7 +59,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
         std::string data;
         status = read_protocol_string(buf, data, m_error);
-        if (status != -1) {
+        if (status != -1 && !data.empty()) {
             version = std::stoi(data, nullptr, 16);
         }
 
@@ -175,21 +175,9 @@ int HostCommand::track_devices() {
     m_command = STRING_CONCAT("host", ":track-devices");
     int status = 0;
 
-    auto on_connection = [&](const TSocketChannelPtr& channel) {
-        std::string peeraddr = channel->peeraddr();
-        if (channel->isConnected()) {
-            auto str = android::base::StringPrintf("%04x", m_command.length()).append(m_command);
-            channel->write(str);
-            ADB_LOGI("connect to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        } else {
-            ADB_LOGI("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
-        }
-        if (m_tcp_client.isReconnect()) {
-            ADB_LOGI("reconnect cnt=%d, delay=%d\n", m_tcp_client.reconn_setting->cur_retry_cnt,
-                     m_tcp_client.reconn_setting->cur_delay);
-        }
-    };
-    set_client_on_connection_callback(on_connection);
+    std::function<void(const TSocketChannelPtr&)> func =
+        std::bind(&HostCommand::defualt_on_connection_callback, this, std::placeholders::_1);
+    set_client_on_connection_callback(func);
 
     auto message_callback = [&](const hv::SocketChannelPtr& channel, hv::Buffer* buf) {
         ADB_LOGI("buf->data(): %s\n", (char*)buf->data());
