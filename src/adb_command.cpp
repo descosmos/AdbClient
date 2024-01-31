@@ -23,6 +23,6 @@ void AdbCommand::start() {
     m_tcp_client.start();
 }
 
-void AdbCommand::restart() {
+void AdbCommand::resume() {
     m_command_finished = 0;
 }

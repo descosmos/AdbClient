@@ -82,7 +82,7 @@ int execute_host_command() {
         hostCommand.waits();
         std::string device_status = hostCommand.get_tracked_devices();
         ADB_LOGI("device_status: %s\n", device_status.c_str());
-        hostCommand.restart();
+        hostCommand.resume();
     }
 #else
     hostCommand.waits();
