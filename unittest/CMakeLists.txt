@@ -21,7 +21,7 @@ include_directories(../third_party/libhv/include/hv)
 
 add_executable(
   ${PROJECT_NAME}
-  hello_test.cpp
+  command_test.cpp
 )
 
 target_link_libraries(
