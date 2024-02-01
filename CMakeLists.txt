@@ -1,9 +1,21 @@
 cmake_minimum_required(VERSION 3.16)
 project(adbClient LANGUAGES CXX)
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CXX_FLAGS
+    -g
+    -Wall
+    -Wextra
+    -Werror
+)
+
+set(CMAKE_CXX_FLAGS_DEBUG "-O0")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 # subordinate directory
 # dependency
@@ -43,9 +55,6 @@ else()
 endif()
 
 # testing
-
-# if(BUILD_UNITTEST)
-enable_testing()
 add_subdirectory(./unittest)
 
 # endif()
