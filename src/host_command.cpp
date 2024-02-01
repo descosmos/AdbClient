@@ -74,7 +74,7 @@ int HostCommand::get_version(int& ARGS_OUT version) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -103,7 +103,7 @@ int HostCommand::get_devices(std::string& ARGS_OUT devices_list) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -135,7 +135,7 @@ int HostCommand::get_devices_with_path(std::string& ARGS_OUT devices_list) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -165,7 +165,7 @@ int HostCommand::kill() {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -194,7 +194,7 @@ int HostCommand::track_devices() {
     m_tcp_client.start();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -224,7 +224,7 @@ int HostCommand::connect(std::string_view ARGS_IN host, std::string_view ARGS_IN
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -254,7 +254,7 @@ int HostCommand::disconnect(std::string_view ARGS_IN host, std::string_view ARGS
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
     }
 
     return status;

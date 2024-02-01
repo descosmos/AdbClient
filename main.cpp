@@ -16,11 +16,11 @@
 
 #ifndef TRACK_LOOP
 // #define TRACK_LOOP  // enable if you want to track devices consecutively.
-#endif // TRACK_LOOP
+#endif  // TRACK_LOOP
 
 #ifndef SHELL_LOOP
 // #define SHELL_LOOP  // enable if you want to execute consecutive commands such as "adb shell logcat"
-#endif // SHELL_LOOP
+#endif  // SHELL_LOOP
 
 using namespace hv;
 
@@ -62,7 +62,7 @@ int execute_host_command() {
     get_device_info_from_buf(devices_list, devices_list_str);
 
     for (const auto& device : devices_list) {
-        ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(),
+        ADB_LOGI("devices_list: %s %s %s %s %s %I64d\n", device.serial.c_str(), device.state.c_str(),
                  device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
     }
 
@@ -71,7 +71,7 @@ int execute_host_command() {
     hostCommand.get_devices_with_path(devices_list_str);
     get_device_info_from_buf(devices_list, devices_list_str);
     for (const auto& device : devices_list) {
-        ADB_LOGI("devices_list: %s %s %s %s %s %d\n", device.serial.c_str(), device.state.c_str(),
+        ADB_LOGI("devices_list: %s %s %s %s %s %I64d\n", device.serial.c_str(), device.state.c_str(),
                  device.product.c_str(), device.model.c_str(), device.device.c_str(), device.transport_id);
     }
 
@@ -184,7 +184,7 @@ int execute_local_command() {
         ADB_LOGI("consecutive_data: %s\n", consecutive_data.c_str());
         localCommand.resume();
     }
-#else 
+#else
     localCommand.shell(serial, "getprop ro.build.version.release");
     // localCommand.shell(serial, "ls /sys/class/thermal/", buf);
     buf = localCommand.get_shell_data();
@@ -199,7 +199,7 @@ int execute_local_command() {
     //     ADB_LOGI("%s \n", line.c_str());
     // }
 
-#endif // SHELL_LOOP
+#endif  // SHELL_LOOP
 
     lines.clear();
     buf.clear();
@@ -219,11 +219,11 @@ int execute_local_command() {
 
     std::string data;
     localCommand.screencap(serial, data);
-    ADB_LOGI("data.size: %d\n", data.size());
+    ADB_LOGI("data.size: %zd\n", data.size());
     FILE* file = fopen("screencap.png", "wb+");  // 以二进制写入模式打开文件
     if (file != nullptr) {
         fwrite(data.c_str(), sizeof(char), data.size(), file);  // 写入二进制数据
-        fclose(file);  // 关闭文件
+        fclose(file);                                           // 关闭文件
         ADB_LOGI("Binary data has been written to file.\n");
     } else {
         ADB_LOGI("Failed to open file for writing.\n");
@@ -244,7 +244,7 @@ int execute_local_command() {
 
     localCommand.list_reverse(serial, buf);
     get_lines_from_buf(lines, buf);
-    ADB_LOGI("lines.size: %d\n", lines.size());
+    ADB_LOGI("lines.size: %zd\n", lines.size());
     for (const auto& forward : lines) {
         ADB_LOGI("%s \n", forward.c_str());
     }
@@ -254,7 +254,7 @@ int execute_local_command() {
     localCommand.kill_reverse(serial, "tcp:1248");
     localCommand.list_reverse(serial, buf);
     get_lines_from_buf(lines, buf);
-    ADB_LOGI("lines.size: %d\n", lines.size());
+    ADB_LOGI("lines.size: %zd\n", lines.size());
     for (const auto& forward : lines) {
         ADB_LOGI("%s \n", forward.c_str());
     }
@@ -264,7 +264,7 @@ int execute_local_command() {
     localCommand.kill_reverse_all(serial);
     localCommand.list_reverse(serial, buf);
     get_lines_from_buf(lines, buf);
-    ADB_LOGI("lines.size: %d\n", lines.size());
+    ADB_LOGI("lines.size: %zd\n", lines.size());
     for (const auto& forward : lines) {
         ADB_LOGI("%s \n", forward.c_str());
     }
@@ -279,8 +279,8 @@ int execute_local_command() {
 
 int main(int argc, char* argv[]) {
     // execute_host_command();
-    // execute_serial_command();
-    execute_local_command();
+    execute_serial_command();
+    // execute_local_command();
     // ADB_LOGI("ID_OKAY: %x\n", ID_OKAY);
 
     return 0;

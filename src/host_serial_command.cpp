@@ -78,7 +78,7 @@ int HostSerialCommand::forward(std::string_view serial, std::string_view local, 
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -107,7 +107,7 @@ int HostSerialCommand::list_forward(std::string_view ARGS_IN serial, std::string
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -137,7 +137,7 @@ int HostSerialCommand::kill_forward(std::string_view ARGS_IN serial, std::string
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -167,7 +167,7 @@ int HostSerialCommand::kill_forward_all(std::string_view ARGS_IN serial) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -196,7 +196,7 @@ int HostSerialCommand::get_device_path(std::string_view ARGS_IN serial, std::str
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -225,7 +225,7 @@ int HostSerialCommand::get_serial_no(std::string_view ARGS_IN serial, std::strin
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;
@@ -254,7 +254,7 @@ int HostSerialCommand::get_state(std::string_view ARGS_IN serial, std::string& A
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", m_command.c_str());
     }
 
     return status;

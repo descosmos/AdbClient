@@ -75,7 +75,7 @@ int LocalCommand::shell(std::string_view ARGS_IN serial, std::string_view ARGS_I
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -105,7 +105,7 @@ int LocalCommand::sync(std::string_view ARGS_IN serial) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -149,7 +149,7 @@ int LocalCommand::screencap(std::string_view ARGS_IN serial, std::string& ARGS_O
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -185,7 +185,7 @@ int LocalCommand::tcpip(std::string_view ARGS_IN serial, uint32_t ARGS_IN port) 
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -214,7 +214,7 @@ int LocalCommand::usb(std::string_view ARGS_IN serial) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -256,7 +256,7 @@ int LocalCommand::root(std::string_view ARGS_IN serial) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -290,7 +290,7 @@ int LocalCommand::reverse(std::string_view serial, std::string_view local, std::
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -327,7 +327,7 @@ int LocalCommand::list_reverse(std::string_view ARGS_IN serial, std::string& ARG
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -356,7 +356,7 @@ int LocalCommand::kill_reverse(std::string_view ARGS_IN serial, std::string_view
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;
@@ -385,7 +385,7 @@ int LocalCommand::kill_reverse_all(std::string_view ARGS_IN serial) {
     waits();
 
     if (status == -1) {
-        ADB_LOGI("%s %s(%u): execute_cmd Failed\n", __FILE__, __FUNCTION__, __LINE__);
+        ADB_LOGE("Failed in execution %s\n", cmd.data());
     }
 
     return status;

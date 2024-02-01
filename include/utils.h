@@ -2,17 +2,18 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#include "device_info.h"
-
 #include <stdio.h>
 #include <string.h>
 
+#include <chrono>
 #include <string>
 #include <vector>
 
+#include "device_info.h"
+
 #ifndef NDEBUG
 #define ADB_DEBUG
-#endif // NDEBUG
+#endif  // NDEBUG
 
 #define DISALLOW_ASSIGN(TypeName)              \
     void operator=(const TypeName &) = delete; \
@@ -47,28 +48,38 @@
 
 #ifndef ADB_LOG
 
-#define ADB_LOGE(fmt, ...)                                              \
-    do {                                                                \
-        fprintf(stderr, "%s (%I32d) : " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
-        fflush(stderr);                                                 \
+#define ADB_LOGE(fmt, ...)                                                                                           \
+    do {                                                                                                             \
+        auto now = std::chrono::system_clock::now();                                                                 \
+        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);                                  \
+        auto value = now_ms.time_since_epoch().count();                                                              \
+        auto milliseconds = value % 1000;                                                                            \
+        std::time_t now_c = std::chrono::system_clock::to_time_t(now);                                               \
+        char timeString[80];                                                                                         \
+        std::strftime(timeString, sizeof(timeString), "%H:%M:%S", std::localtime(&now_c));                           \
+        fprintf(stderr, "[%s.%I64d] %s (%I32d) E : " fmt, timeString, milliseconds, __FILE__, __LINE__, ##__VA_ARGS__); \
     } while (0)
-
 
 #ifdef ADB_DEBUG
-#define ADB_LOGI(fmt, ...)                                              \
-    do {                                                                \
-        printf("%s (%I32d) : " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
-        fflush(stdout);                                                 \
+#define ADB_LOGI(fmt, ...)                                                                                           \
+    do {                                                                                                             \
+        auto now = std::chrono::system_clock::now();                                                                 \
+        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);                                  \
+        auto value = now_ms.time_since_epoch().count();                                                              \
+        auto milliseconds = value % 1000;                                                                            \
+        std::time_t now_c = std::chrono::system_clock::to_time_t(now);                                               \
+        char timeString[80];                                                                                         \
+        std::strftime(timeString, sizeof(timeString), "%H:%M:%S", std::localtime(&now_c));                           \
+        fprintf(stdout, "[%s.%I64d] %s (%I32d) I : " fmt, timeString, milliseconds, __FILE__, __LINE__, ##__VA_ARGS__); \
+        fflush(stdout);                                                                                              \
     } while (0)
 
-#else 
-#define ADB_LOGI(fmt, ...)                                              \
-    do {} while (0)
+#else
+#define ADB_LOGI(fmt, ...) \
+    do {                   \
+    } while (0)
 
-#endif // ADB_DEBUG
-
-
-
+#endif  // ADB_DEBUG
 
 #endif  // ADB_LOG
 
@@ -80,7 +91,7 @@ constexpr int DEFAULT_ADB_PORT = 5037;
 
 std::vector<std::string> string_split(const std::string &str, char delimiter);
 void unique_spaces(std::string &str);
-void get_device_info_from_buf(std::vector<DeviceInfo>& ARGS_OUT devices_list, const std::string& ARGS_IN buf);
-void get_lines_from_buf(std::vector<std::string>& ARGS_OUT lines, const std::string& ARGS_IN buf);
+void get_device_info_from_buf(std::vector<DeviceInfo> &ARGS_OUT devices_list, const std::string &ARGS_IN buf);
+void get_lines_from_buf(std::vector<std::string> &ARGS_OUT lines, const std::string &ARGS_IN buf);
 
 #endif  // UTILS_H_
