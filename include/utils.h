@@ -84,7 +84,15 @@
 #endif  // ADB_LOG
 
 #ifndef STRING_CONCAT
+// MSVC is ok with a##b when both of them are const char*,
+// while gcc and clang doesn't support it.
+// https://stackoverflow.com/questions/1206624/differences-in-macro-concatenation-operator-between-visual-c-and-gcc
+#if defined(_MSC_VER)
 #define STRING_CONCAT(a, b) a##b
+#else
+#define STRING_CONCAT(a, b) (a b)
+#endif
+
 #endif  // STRING_CONCAT
 
 constexpr int DEFAULT_ADB_PORT = 5037;
