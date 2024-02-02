@@ -1,13 +1,70 @@
 # adbClient
 > Interface of adbClient.
 
+
+
+## Prebuid
+
+**MacOs**:
+
+Due to apple clang support `std::format` since [Xcode15.3](https://developer.apple.com/xcode/cpp/), for which developer have to install llvm previously.
+
+1. Install `llvm-toolchain`;
+
+```shell
+brew install llvm
+```
+
+2. Append llvm-toolchain to `PATH`;
+
+```shell
+echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
+```
+
+
+
+**Windows**:
+
+1. Install visual studio 2019 or later.
+2. Append visual studio `cmake.exe`, `cl.exe` and other relative tools to `PATH`;
+
+```shell
+# Example:
+add "D:\visual studio 2019\2019\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x64" to PATH
+add "D:\visual studio 2019\2019\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin" to PATH
+```
+
+
+
+**Linux**:
+
+1. Install `cmake` and other tools.
+
+```shell
+sudo apt install cmake
+```
+
+2. Update G++ to g++-13.
+
+```shell
+sudo apt install g++-13
+```
+
+
+
 ## Build
+
 ```shell
 $ mkdir build && cd build
 $ cmake ..
 $ cmake --build .
 
 ```
+
+
+
+
+
 
 
 ## Reference

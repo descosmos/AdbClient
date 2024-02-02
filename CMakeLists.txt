@@ -7,12 +7,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CXX_FLAGS
-    -g
-    -Wall
-    -Wextra
-    -Werror
-)
+set(CMAKE_CXX_FLAFS "-g")
+set(CMAKE_CXX_FLAFS "-Wall")
+set(CMAKE_CXX_FLAFS "-Wextra")
+set(CMAKE_CXX_FLAFS "-Werror")
+
+if(NOT WIN32)
+    set(CMAKE_REQUIRED_LIBRARIES "-pthread")
+    set(CMAKE_CXX_FLAFS "-shared")
+    set(CMAKE_CXX_FLAFS "-fPIC")
+endif()
+
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
@@ -38,7 +43,7 @@ set(SRC
     ${PROJECT_SOURCE_DIR}/src/adb_protocol.cpp
 )
 
-# library
+# add library
 if(WIN32)
     add_library(${PROJECT_NAME} SHARED ${SRC})
     add_library(${PROJECT_NAME}Static STATIC ${SRC})
@@ -46,19 +51,23 @@ else()
     add_library(${PROJECT_NAME} SHARED ${SRC})
 endif()
 
-# link
+# link third_party
 if(WIN32)
     target_link_libraries(${PROJECT_NAME}Static PUBLIC hv_static)
     target_link_libraries(${PROJECT_NAME} PUBLIC hv_static)
 else()
-    target_link_libraries(${PROJECT_NAME} PUBLIC hv_static)
+    target_link_libraries(${PROJECT_NAME} PUBLIC hv)
 endif()
 
 # testing
 add_subdirectory(./unittest)
 
-# endif()
-
 # executable
 add_executable(${PROJECT_NAME}Exe main.cpp)
-target_link_libraries(${PROJECT_NAME}Exe ${PROJECT_NAME}Static)
+
+# target_link
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME}Exe ${PROJECT_NAME}Static)
+else()
+    target_link_libraries(${PROJECT_NAME}Exe ${PROJECT_NAME})
+endif()
