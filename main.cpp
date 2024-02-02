@@ -8,7 +8,7 @@
 #include "htime.h"
 #include "libhv_evpp/TcpClient.h"
 #include "local_command.h"
-#include "protocol.h"
+#include "adb_protocol.h"
 #include "utils.h"
 
 #define TEST_RECONNECT 0

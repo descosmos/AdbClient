@@ -35,7 +35,7 @@ set(SRC
     ${PROJECT_SOURCE_DIR}/src/host_command.cpp
     ${PROJECT_SOURCE_DIR}/src/local_command.cpp
     ${PROJECT_SOURCE_DIR}/src/host_serial_command.cpp
-    ${PROJECT_SOURCE_DIR}/src/protocol.cpp
+    ${PROJECT_SOURCE_DIR}/src/adb_protocol.cpp
 )
 
 # library

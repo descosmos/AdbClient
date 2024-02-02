@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "android/stringprintf.h"
-#include "protocol.h"
+#include "adb_protocol.h"
 
 using namespace std::chrono_literals;
 
