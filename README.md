@@ -12,13 +12,14 @@ Due to apple clang support `std::format` since [Xcode15.3](https://developer.app
 1. Install `llvm-toolchain`;
 
 ```shell
-brew install llvm
+brew install llvm@17  
 ```
 
 2. Append llvm-toolchain to `PATH`;
 
 ```shell
-echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="/opt/homebrew/opt/llvm@17/bin:$PATH" ' >> ~/.bash_profile
+echo 'export PATH="/opt/homebrew/opt/llvm@17/bin:$PATH" ' >> ~/.zprofile
 ```
 
 
