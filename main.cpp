@@ -2,13 +2,13 @@
 
 #include <iostream>
 
+#include "adb_protocol.h"
 #include "android/stringprintf.h"
 #include "host_command.h"
 #include "host_serial_command.h"
 #include "htime.h"
 #include "libhv_evpp/TcpClient.h"
 #include "local_command.h"
-#include "adb_protocol.h"
 #include "utils.h"
 
 #define TEST_RECONNECT 0
@@ -220,10 +220,10 @@ int execute_local_command() {
     std::string data;
     localCommand.screencap(serial, data);
     ADB_LOGI("data.size: %zd\n", data.size());
-    FILE* file = fopen("screencap.png", "wb+");  // 以二进制写入模式打开文件
+    FILE* file = fopen("screencap.png", "wb+");
     if (file != nullptr) {
-        fwrite(data.c_str(), sizeof(char), data.size(), file);  // 写入二进制数据
-        fclose(file);                                           // 关闭文件
+        fwrite(data.c_str(), sizeof(char), data.size(), file);
+        fclose(file);
         ADB_LOGI("Binary data has been written to file.\n");
     } else {
         ADB_LOGI("Failed to open file for writing.\n");
